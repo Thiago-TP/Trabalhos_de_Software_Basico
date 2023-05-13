@@ -2,7 +2,7 @@
 Montador para a matéria Software básico (Bruno Luiggi, UnB, abril-maio de 2023)
 
 
-##1a semana - 14/5 a 20/5
+## 1a semana - 14/5 a 20/5
 	### Pré-processamento completo
 		+ Tirar enter entre label e instrução
 		+ Não ser sensível à capitalização
