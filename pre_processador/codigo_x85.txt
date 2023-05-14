@@ -1,0 +1,26 @@
+        COPY           ZERO, OLDER 
+        cOPY           ONE,    OLD;sadkjasd
+        INPUT          LIMIT;???//°
+        OUTPUT         OLD
+FRONT:  LOAD           OLDER
+        AdD            OLD
+;
+
+
+        STORE          NEW      ; - = = - -= =- 90 Oi Cleyton >:)
+        SUB            LIMIT                                                    ; 2137481239*&()
+        JMPP           FINAL
+        OUTPUT         NEW
+        COPy           OLD,    OLDER            ; dasdlkfjsdflkjshfd
+        COPY           NEW,             OLD
+        JMP            FRONT
+
+FiNAL:  
+        OUTPUT         LIMIT
+        STOP
+ZERO:   CONST          0
+ONE:    CONST          1
+OLDER:  SPACE
+OLD:    SPACE
+NEW:    SPACE
+LIMIT:  SPACE
