@@ -1,4 +1,4 @@
-        COPY           ZERO, OLDER 
+COPY ZERO, OLDER 
         cOPY           ONE,    OLD;sadkjasd
         INPUT          LIMIT;???//°
         OUTPUT         OLD
@@ -16,6 +16,8 @@ FRONT:  LOAD           OLDER
         JMP            FRONT
 
 FiNAL:  
+
+
         OUTPUT         LIMIT
         STOP
 ZERO:   CONST          0
