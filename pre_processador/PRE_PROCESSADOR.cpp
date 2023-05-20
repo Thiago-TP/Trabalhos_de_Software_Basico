@@ -30,7 +30,7 @@ int main()
     if (remove_enter_after_label    ("codigo_x85_espaçado.asm"))            {return 1;}
     if (catch_absent_text_section   ("codigo_x85_labels_sem_enter.asm"))    {return 1;}
     if (move_data_section_down      ("codigo_x85_labels_sem_enter.asm"))    {return 1;}
-    // if (catch_double_label          ("codigo_x85_labels_sem_enter.asm"))    {return 1;}
+    if (catch_double_label          ("codigo_x85_com_DATA_embaixo.asm"))    {return 1;}
     // if (catch_absent_begin_or_end   ("codigo_x85_labels_sem_enter.asm"))    {return 1;}
     // if (catch_lexic_error           (source_file_name))                     {return 1;}
 
@@ -53,74 +53,37 @@ int sanity_check(ifstream& input_file, ofstream& output_file)
 }
 
 
-int move_data_section_down(const string& filename)
+int catch_double_label(const string& filename)
 {
-    cout << "Movendo SECTION DATA para o final do código..." << endl;
+    cout << "Procurando label duplamente definida em mesma linha..." << endl;
+
     ifstream input_file(filename);
-    ofstream output_file("codigo_x85_com_DATA_embaixo.asm");
-
-    if (sanity_check(input_file, output_file)) {return 1;}
-
-    int t_section_index, d_section_index, line_index=0; 
-    vector<string> lines;
-    string line;
-
-    while (getline(input_file, line)) {
-        lines.push_back(line);
-        size_t aux_t = line.find("SECTION TEXT"); if (aux_t != string::npos) {t_section_index = line_index;}
-        size_t aux_d = line.find("SECTION DATA"); if (aux_d != string::npos) {d_section_index = line_index;}
-        ++line_index;
-    }
-
-    if (d_section_index > t_section_index) {
-        for (const auto& modifiedLine : lines) {
-            output_file << modifiedLine << endl;
-        }
-        input_file.close();
-        output_file.close();
-        cout << "SECTION DATA movida com sucesso.\n\n" << endl;
-        return 0;
-    }
-
-    vector<string> other_slice(lines.begin(), lines.begin() + d_section_index);
-    vector<string> data_slice(lines.begin() + d_section_index, lines.begin() + t_section_index);
-    vector<string> text_slice(lines.begin() + t_section_index, lines.end());
-
-    for (const auto& modifiedLine : other_slice){output_file << modifiedLine << endl;}
-    for (const auto& modifiedLine : text_slice) {output_file << modifiedLine << endl;}
-    for (const auto& modifiedLine : data_slice) {output_file << modifiedLine << endl;}
-
-    
-    input_file.close();
-    output_file.close();
-    cout << "SECTION DATA movida com sucesso.\n\n" << endl;
-    return 0;
-}
-
-
-int catch_absent_text_section(const string& filename)
-{
-    cout << "Procurando SECTION TEXT..." << endl;
-    ifstream input_file(filename);
-
     if (!input_file.is_open()) {
         cout << "Falha ao abrir o arquivo de entrada." << endl;
         return 1;
     }
 
     string line;
-    while (getline(input_file, line)) {
-        size_t pos = line.find("SECTION TEXT");
-        if (pos != string::npos) {
-            input_file.close();
-            cout << "SECTION TEXT encontrada.\n\n" << endl;
-            return 0;
-        }
-    }
-    cout << "Erro semântico: SECTION TEXT não encontrada.\n\n" << endl;
-    return 1;    
-}
+    int line_number = 1;
 
+    while (getline(input_file, line)) {
+        size_t first_double_dot = line.find_first_of(':');
+        size_t last_double_dot = line.find_last_of(':');
+
+        if (first_double_dot != string::npos && 
+            first_double_dot != last_double_dot) {
+            cout << "Label dupla na linha " << line_number << " do arquivo " << filename << "\n\n" << endl;
+            return 1;
+        }
+
+        ++line_number;
+    }
+
+    input_file.close();
+
+    cout << "Nenhuma dupla detectada.\n\n" << endl;
+    return 0;
+}
 
 int remove_comments(const string& filename)
 {
@@ -266,3 +229,70 @@ int remove_enter_after_label(const string& filename)
 }
 
 
+int catch_absent_text_section(const string& filename)
+{
+    cout << "Procurando SECTION TEXT..." << endl;
+    ifstream input_file(filename);
+
+    if (!input_file.is_open()) {
+        cout << "Falha ao abrir o arquivo de entrada." << endl;
+        return 1;
+    }
+
+    string line;
+    while (getline(input_file, line)) {
+        size_t pos = line.find("SECTION TEXT");
+        if (pos != string::npos) {
+            input_file.close();
+            cout << "SECTION TEXT encontrada.\n\n" << endl;
+            return 0;
+        }
+    }
+    cout << "Erro semântico: SECTION TEXT não encontrada.\n\n" << endl;
+    return 1;    
+}
+
+
+int move_data_section_down(const string& filename)
+{
+    cout << "Movendo SECTION DATA para o final do código..." << endl;
+    ifstream input_file(filename);
+    ofstream output_file("codigo_x85_com_DATA_embaixo.asm");
+
+    if (sanity_check(input_file, output_file)) {return 1;}
+
+    int t_section_index, d_section_index, line_index=0; 
+    vector<string> lines;
+    string line;
+
+    while (getline(input_file, line)) {
+        lines.push_back(line);
+        size_t aux_t = line.find("SECTION TEXT"); if (aux_t != string::npos) {t_section_index = line_index;}
+        size_t aux_d = line.find("SECTION DATA"); if (aux_d != string::npos) {d_section_index = line_index;}
+        ++line_index;
+    }
+
+    if (d_section_index > t_section_index) {
+        for (const auto& modifiedLine : lines) {
+            output_file << modifiedLine << endl;
+        }
+        input_file.close();
+        output_file.close();
+        cout << "SECTION DATA movida com sucesso.\n\n" << endl;
+        return 0;
+    }
+
+    vector<string> other_slice(lines.begin(), lines.begin() + d_section_index);
+    vector<string> data_slice(lines.begin() + d_section_index, lines.begin() + t_section_index);
+    vector<string> text_slice(lines.begin() + t_section_index, lines.end());
+
+    for (const auto& modifiedLine : other_slice){output_file << modifiedLine << endl;}
+    for (const auto& modifiedLine : text_slice) {output_file << modifiedLine << endl;}
+    for (const auto& modifiedLine : data_slice) {output_file << modifiedLine << endl;}
+
+    
+    input_file.close();
+    output_file.close();
+    cout << "SECTION DATA movida com sucesso.\n\n" << endl;
+    return 0;
+}
