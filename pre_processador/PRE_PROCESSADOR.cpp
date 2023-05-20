@@ -3,75 +3,173 @@
 #include <sstream>
 #include <string>
 
+#include <vector>
+#include <algorithm>
+
 using namespace std;  // Evita usar "std::" toda hora
 
-int remove_blanks_and_comments     (const string&);
-int capitalize_text                (const string&);
-int equal_spacing_between_tokens   (const string&);
-int remove_enter_after_label       (const string&);
-int catch_double_label             (const string&);
-int catch_absent_text_section      (const string&);
-int catch_absent_begin_or_end      (const string&);
-int catch_lexic_error              (const string&);
+int remove_comments                 (const string&);
+int remove_blanks                   (const string&);
+int capitalize_text                 (const string&);
+int equal_spacing_between_tokens    (const string&);
+int remove_enter_after_label        (const string&);
+int move_data_section_down          (const string&);
+int catch_double_label              (const string&);
+int catch_absent_text_section       (const string&);
+int catch_absent_begin_or_end       (const string&);
+// int catch_lexic_error               (const string&);
 
 int main() 
 {
-    const string& source_file_name = "codigo_x85.txt";  // Vai virar "argv"
+    const string& source_file_name = "codigo_x85.asm";  // Vai virar "argv"
     
-    if (remove_blanks_and_comments(source_file_name))               {return 1;}
-    if (capitalize_text("codigo_x85_limpo.txt"))                    {return 1;}
-    if (equal_spacing_between_tokens("codigo_x85_caixa_alta.txt"))  {return 1;}
-    if (remove_enter_after_label("codigo_x85_espaçado.txt"))        {return 1;}
-    // catch_double_label();
-    // catch_absent_text_section();
-    // catch_absent_begin_or_end();
-    // catch_lexic_error();
+    if (remove_comments             (source_file_name))                     {return 1;}
+    if (remove_blanks               ("codigo_x85_descomentado.asm"))        {return 1;}
+    if (capitalize_text             ("codigo_x85_sem_linha_vazia.asm"))     {return 1;}
+    if (equal_spacing_between_tokens("codigo_x85_caixa_alta.asm"))          {return 1;}
+    if (remove_enter_after_label    ("codigo_x85_espaçado.asm"))            {return 1;}
+    if (catch_absent_text_section   ("codigo_x85_labels_sem_enter.asm"))    {return 1;}
+    if (move_data_section_down      ("codigo_x85_labels_sem_enter.asm"))    {return 1;}
+    // if (catch_double_label          ("codigo_x85_labels_sem_enter.asm"))    {return 1;}
+    // if (catch_absent_begin_or_end   ("codigo_x85_labels_sem_enter.asm"))    {return 1;}
+    // if (catch_lexic_error           (source_file_name))                     {return 1;}
 
     return 0;
 }
 
 
-int sanity_check(ifstream& inputFile, ofstream& outputFile) 
+int sanity_check(ifstream& input_file, ofstream& output_file) 
 {
-    if (!inputFile.is_open()) {
+    if (!input_file.is_open()) {
         cout << "Falha ao abrir o arquivo de entrada." << endl;
         return 1;
     }
-    if (!outputFile.is_open()) {
+    if (!output_file.is_open()) {
         cout << "Falha ao criar o arquivo de saída." << endl;
-        inputFile.close();
+        input_file.close();
         return 1;
     }
     return 0;
 }
 
 
-int remove_blanks_and_comments(const string& filename)
+int move_data_section_down(const string& filename)
 {
-    cout << "Limpando o código..." << endl;
-    ifstream inputFile(filename);
-    ofstream outputFile("codigo_x85_limpo.txt");
+    cout << "Movendo SECTION DATA para o final do código..." << endl;
+    ifstream input_file(filename);
+    ofstream output_file("codigo_x85_com_DATA_embaixo.asm");
 
-    if (sanity_check(inputFile, outputFile)) {return 1;} 
+    if (sanity_check(input_file, output_file)) {return 1;}
+
+    int t_section_index, d_section_index, line_index=0; 
+    vector<string> lines;
+    string line;
+
+    while (getline(input_file, line)) {
+        lines.push_back(line);
+        size_t aux_t = line.find("SECTION TEXT"); if (aux_t != string::npos) {t_section_index = line_index;}
+        size_t aux_d = line.find("SECTION DATA"); if (aux_d != string::npos) {d_section_index = line_index;}
+        ++line_index;
+    }
+
+    if (d_section_index > t_section_index) {
+        for (const auto& modifiedLine : lines) {
+            output_file << modifiedLine << endl;
+        }
+        input_file.close();
+        output_file.close();
+        cout << "SECTION DATA movida com sucesso.\n\n" << endl;
+        return 0;
+    }
+
+    vector<string> other_slice(lines.begin(), lines.begin() + d_section_index);
+    vector<string> data_slice(lines.begin() + d_section_index, lines.begin() + t_section_index);
+    vector<string> text_slice(lines.begin() + t_section_index, lines.end());
+
+    for (const auto& modifiedLine : other_slice){output_file << modifiedLine << endl;}
+    for (const auto& modifiedLine : text_slice) {output_file << modifiedLine << endl;}
+    for (const auto& modifiedLine : data_slice) {output_file << modifiedLine << endl;}
+
+    
+    input_file.close();
+    output_file.close();
+    cout << "SECTION DATA movida com sucesso.\n\n" << endl;
+    return 0;
+}
+
+
+int catch_absent_text_section(const string& filename)
+{
+    cout << "Procurando SECTION TEXT..." << endl;
+    ifstream input_file(filename);
+
+    if (!input_file.is_open()) {
+        cout << "Falha ao abrir o arquivo de entrada." << endl;
+        return 1;
+    }
 
     string line;
-    while (getline(inputFile, line)) {
+    while (getline(input_file, line)) {
+        size_t pos = line.find("SECTION TEXT");
+        if (pos != string::npos) {
+            input_file.close();
+            cout << "SECTION TEXT encontrada.\n\n" << endl;
+            return 0;
+        }
+    }
+    cout << "Erro semântico: SECTION TEXT não encontrada.\n\n" << endl;
+    return 1;    
+}
+
+
+int remove_comments(const string& filename)
+{
+    cout << "Tirando comentários..." << endl;
+    ifstream input_file(filename);
+    ofstream output_file("codigo_x85_descomentado.asm");
+
+    if (sanity_check(input_file, output_file)) {return 1;} 
+
+    string line;
+    while (getline(input_file, line)) {
 
         // Remove comentário (pega a substring até o ';')
         size_t pos = line.find(';');
         if (pos != string::npos) {
             line = line.substr(0, pos);
         }
+        output_file << line << endl;
+    }
+
+    input_file.close();
+    output_file.close();
+
+    cout << "Comentários retirados com sucesso.\n\n" << endl;
+    return 0;
+}
+
+
+int remove_blanks(const string& filename)
+{
+    cout << "Removendo linha em branco..." << endl;
+    ifstream input_file(filename);
+    ofstream output_file("codigo_x85_sem_linha_vazia.asm");
+
+    if (sanity_check(input_file, output_file)) {return 1;} 
+
+    string line;
+    while (getline(input_file, line)) {
+
         // Não imprime linha em branco
         if (!line.empty()) {
-            outputFile << line << endl;
+            output_file << line << endl;
         }
     }
 
-    inputFile.close();
-    outputFile.close();
+    input_file.close();
+    output_file.close();
 
-    cout << "Código limpado com sucesso.\n\n" << endl;
+    cout << "Linhas removidas com sucesso.\n\n" << endl;
     return 0;
 }
 
@@ -79,23 +177,23 @@ int remove_blanks_and_comments(const string& filename)
 int capitalize_text(const string& filename) 
 {
     cout << "Deixando as linhas em maiúscula..." << endl;
-    ifstream inputFile(filename);
-    ofstream outputFile("codigo_x85_caixa_alta.txt");
+    ifstream input_file(filename);
+    ofstream output_file("codigo_x85_caixa_alta.asm");
 
-    if (sanity_check(inputFile, outputFile)) {return 1;} 
+    if (sanity_check(input_file, output_file)) {return 1;} 
 
     string line;
-    while (getline(inputFile, line)) {
+    while (getline(input_file, line)) {
         for (char& c : line) {
             if (isalpha(c)) {
                 c = toupper(c);
             }
         }
-        outputFile << line << endl;
+        output_file << line << endl;
     }
 
-    inputFile.close();
-    outputFile.close();
+    input_file.close();
+    output_file.close();
 
     cout << "Linhas foram colocadas em maiúscula com sucesso.\n\n" << endl;
     return 0;
@@ -105,13 +203,13 @@ int capitalize_text(const string& filename)
 int equal_spacing_between_tokens(const string& filename)
 {
     cout << "Espaçando o código..." << endl;
-    ifstream inputFile(filename);
-    ofstream outputFile("codigo_x85_espaçado.txt");
+    ifstream input_file(filename);
+    ofstream output_file("codigo_x85_espaçado.asm");
 
-    if (sanity_check(inputFile, outputFile)) {return 1;}    
+    if (sanity_check(input_file, output_file)) {return 1;}    
 
     string line;
-    while (getline(inputFile, line)) {
+    while (getline(input_file, line)) {
 
         istringstream iss(line); 
         string token;
@@ -119,17 +217,17 @@ int equal_spacing_between_tokens(const string& filename)
 
             // Separa os argumentos do copy com vírgula
             size_t pos = token.find(',');
-            if (pos != string::npos) {
+            if (token != "," && pos != string::npos) {
                 token = token.substr(0, pos) + " ,";
             }
 
-            outputFile << token << " ";
+            output_file << token << " ";
         }
-        outputFile << endl;
+        output_file << endl;
     }
 
-    inputFile.close();
-    outputFile.close();
+    input_file.close();
+    output_file.close();
 
     cout << "Código espaçado com sucesso.\n\n" << endl;
     return 0;
@@ -139,30 +237,32 @@ int equal_spacing_between_tokens(const string& filename)
 int remove_enter_after_label(const string& filename)
 {
     cout << "Tirando enters depois de label..." << endl;
-    ifstream inputFile(filename);
-    ofstream outputFile("codigo_x85_labels_sem_enter.txt");
+    ifstream input_file(filename);
+    ofstream output_file("codigo_x85_labels_sem_enter.asm");
 
-    if (sanity_check(inputFile, outputFile)) {return 1;} 
+    if (sanity_check(input_file, output_file)) {return 1;} 
 
     string line;
-    while (getline(inputFile, line)) {
+    while (getline(input_file, line)) {
 
         line.pop_back();  // O último caracter é sempre ' '
         string label = line; 
         
         if (label.back() == ':') {
-            getline(inputFile, line);
-            outputFile << label << " " << line << endl;
+            getline(input_file, line);
+            output_file << label << " " << line << endl;
         }
 
         else {
-            outputFile << line << endl;
+            output_file << line << endl;
         }
     }
 
-    inputFile.close();
-    outputFile.close();
+    input_file.close();
+    output_file.close();
 
     cout << "Enters depois de label retirados com sucesso.\n\n" << endl;
     return 0;
 }
+
+
