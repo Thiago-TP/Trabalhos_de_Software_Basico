@@ -6,7 +6,7 @@
 #include <vector>
 #include <algorithm>
 
-using namespace std;  // Evita usar "std::" toda hora
+using namespace std;  
 
 int remove_comments                 (const string&);
 int remove_blanks                   (const string&);
@@ -14,10 +14,10 @@ int capitalize_text                 (const string&);
 int equal_spacing_between_tokens    (const string&);
 int remove_enter_after_label        (const string&);
 int move_data_section_down          (const string&);
+int hex_const_to_decimal            (const string&);
 int catch_double_label              (const string&);
 int catch_absent_text_section       (const string&);
 int catch_absent_begin_or_end       (const string&);
-// int catch_lexic_error               (const string&);
 
 int main() 
 {
@@ -30,6 +30,8 @@ int main()
     if (remove_enter_after_label    ("codigo_x85_espaçado.asm"))            {return 1;}
     if (catch_absent_text_section   ("codigo_x85_labels_sem_enter.asm"))    {return 1;}
     if (move_data_section_down      ("codigo_x85_labels_sem_enter.asm"))    {return 1;}
+    if (hex_const_to_decimal        ("codigo_x85_com_DATA_embaixo.asm"))    {return 1;}
+
     if (catch_double_label          ("codigo_x85_com_DATA_embaixo.asm"))    {return 1;}
     // if (catch_absent_begin_or_end   ("codigo_x85_labels_sem_enter.asm"))    {return 1;}
     // if (catch_lexic_error           (source_file_name))                     {return 1;}
@@ -52,38 +54,6 @@ int sanity_check(ifstream& input_file, ofstream& output_file)
     return 0;
 }
 
-
-int catch_double_label(const string& filename)
-{
-    cout << "Procurando label duplamente definida em mesma linha..." << endl;
-
-    ifstream input_file(filename);
-    if (!input_file.is_open()) {
-        cout << "Falha ao abrir o arquivo de entrada." << endl;
-        return 1;
-    }
-
-    string line;
-    int line_number = 1;
-
-    while (getline(input_file, line)) {
-        size_t first_double_dot = line.find_first_of(':');
-        size_t last_double_dot = line.find_last_of(':');
-
-        if (first_double_dot != string::npos && 
-            first_double_dot != last_double_dot) {
-            cout << "Label dupla na linha " << line_number << " do arquivo " << filename << "\n\n" << endl;
-            return 1;
-        }
-
-        ++line_number;
-    }
-
-    input_file.close();
-
-    cout << "Nenhuma dupla detectada.\n\n" << endl;
-    return 0;
-}
 
 int remove_comments(const string& filename)
 {
@@ -294,5 +264,65 @@ int move_data_section_down(const string& filename)
     input_file.close();
     output_file.close();
     cout << "SECTION DATA movida com sucesso.\n\n" << endl;
+    return 0;
+}
+
+
+int hex_const_to_decimal(const string& filename)
+{
+    cout << "Convertendo valores de CONST para decimal..." << endl;
+    ifstream input_file(filename);
+    ofstream output_file("codigo_x85_CONST_decimal.asm");
+
+    if (sanity_check(input_file, output_file)) {return 1;}
+    
+    string token, line;
+
+    while (input_file >> token) {
+        if (token.size() >= 2 && token.substr(0, 2) == "0X") {
+            unsigned long decimal_value = stoul(token.substr(2), nullptr, 16);
+            output_file << decimal_value << endl;
+        }
+        else {
+            output_file << token << endl;
+        }
+    }
+    
+    input_file.close();
+    output_file.close();
+    cout << "Valores convertidos com sucesso.\n\n" << endl;
+    return 0;
+}
+
+
+int catch_double_label(const string& filename)
+{
+    cout << "Procurando label duplamente definida em mesma linha..." << endl;
+
+    ifstream input_file(filename);
+    if (!input_file.is_open()) {
+        cout << "Falha ao abrir o arquivo de entrada." << endl;
+        return 1;
+    }
+
+    string line;
+    int line_number = 1;
+
+    while (getline(input_file, line)) {
+        size_t first_double_dot = line.find_first_of(':');
+        size_t last_double_dot = line.find_last_of(':');
+
+        if (first_double_dot != string::npos && 
+            first_double_dot != last_double_dot) {
+            cout << "Label dupla na linha " << line_number << " do arquivo " << filename << "\n\n" << endl;
+            return 1;
+        }
+
+        ++line_number;
+    }
+
+    input_file.close();
+
+    cout << "Nenhuma dupla detectada.\n\n" << endl;
     return 0;
 }
