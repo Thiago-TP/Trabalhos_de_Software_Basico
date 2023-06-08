@@ -106,7 +106,7 @@ void fill_global_tables_and_exc(const char* objfile_name, int file_index) {
     cout << "Construindo TGD com " << objfile_name << "..." << endl;
     if (sanity_check(input_file, TGD_file)) {return;} 
     bool in_DEF = true; string def_line;     
-    while (in_DEF) {
+    while (in_DEF) { cout << def_line << endl;
         getline(input_file, def_line);        
         if      (def_line == "USO") {in_DEF = false;}
         else if (def_line != "DEF") {TGD_file << offset(def_line, file_index) << endl;}
