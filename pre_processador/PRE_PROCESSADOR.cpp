@@ -268,6 +268,24 @@ int move_data_section_down(const string& filename)
 }
 
 
+string hex2dec(const string& token) {
+    // Check if the string starts with "0x"
+    if (token.size() >= 2 && token.substr(0, 2) == "0X") {
+        // Remove the "0x" prefix
+        std::string hexDigits = token.substr(2);
+
+        // Convert hexadecimal to decimal
+        unsigned long decimalValue = std::strtoul(hexDigits.c_str(), nullptr, 16);
+
+        // Convert decimal to string
+        std::ostringstream oss;
+        oss << decimalValue;
+        return oss.str();
+    }
+
+    return token; // Return as-is if not a valid hexadecimal string
+}
+
 int hex_const_to_decimal(const string& filename)
 {
     cout << "Convertendo valores de CONST para decimal..." << endl;
@@ -276,16 +294,19 @@ int hex_const_to_decimal(const string& filename)
 
     if (sanity_check(input_file, output_file)) {return 1;}
     
-    string token, line;
+    string line;
+    while (getline(input_file, line)) {
+        istringstream iss(line);
+        string token;
+        bool firstToken = true;
 
-    while (input_file >> token) {
-        if (token.size() >= 2 && token.substr(0, 2) == "0X") {
-            unsigned long decimal_value = stoul(token.substr(2), nullptr, 16);
-            output_file << decimal_value << endl;
+        while (iss >> token) {
+            string convertedToken = hex2dec(token);
+            if (firstToken) {firstToken = false;} 
+            else {output_file << " ";}
+            output_file << convertedToken;
         }
-        else {
-            output_file << token << endl;
-        }
+        output_file << endl; // Add newline after each line
     }
     
     input_file.close();
