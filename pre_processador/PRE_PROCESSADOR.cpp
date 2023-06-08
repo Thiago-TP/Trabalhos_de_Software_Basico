@@ -272,13 +272,13 @@ string hex2dec(const string& token) {
     // Check if the string starts with "0x"
     if (token.size() >= 2 && token.substr(0, 2) == "0X") {
         // Remove the "0x" prefix
-        std::string hexDigits = token.substr(2);
+        string hexDigits = token.substr(2);
 
         // Convert hexadecimal to decimal
-        unsigned long decimalValue = std::strtoul(hexDigits.c_str(), nullptr, 16);
+        unsigned long decimalValue = strtoul(hexDigits.c_str(), nullptr, 16);
 
         // Convert decimal to string
-        std::ostringstream oss;
+        ostringstream oss;
         oss << decimalValue;
         return oss.str();
     }
