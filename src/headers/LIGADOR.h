@@ -1,7 +1,7 @@
 void begin_exc_and_get_offsets(const string&);
 void fill_global_tables_and_exc(const string&, int);
 void make_struct_vector();
-void finish_executable();
+void finish_executable(const string&);
 void delete_tmp_tables();
 
 void link(vector<string> obj_files) {
@@ -11,23 +11,9 @@ void link(vector<string> obj_files) {
         fill_global_tables_and_exc(obj_files[i], i); 
     }
     make_struct_vector(); 
-    finish_executable();
+    finish_executable(obj_files[0]);
     delete_tmp_tables();
 }
-
-// int sanity_check(ifstream& input_file, ofstream& output_file) 
-// {
-//     if (!input_file.is_open()) {
-//         cout << "Falha ao abrir o arquivo de entrada." << endl;
-//         return 1;
-//     }
-//     if (!output_file.is_open()) {
-//         cout << "Falha ao criar o arquivo de saída." << endl;
-//         input_file.close();
-//         return 1;
-//     }
-//     return 0;
-// }
 
 // definir vetor global para 
 // a Tabela Global de Definições e
@@ -192,7 +178,7 @@ void make_struct_vector() {
     cout << "Combinação concluída.\n\n" << endl;
 }
 
-void finish_executable() {
+void finish_executable(const string& first_mod_name) {
     cout << "Finalizando executável..." << endl;
 
     vector<int> passed_relatives;
@@ -214,11 +200,13 @@ void finish_executable() {
         }
     }
 
-    ofstream EXC_file ("Executavel.exc");
+    size_t pos = first_mod_name.find(".obj");
+    string exc_name = first_mod_name.substr(0, pos) + ".exc";
+    ofstream EXC_file (exc_name);
     for (auto num : exc_vector) EXC_file << num << " ";
     EXC_file.close();
     
-    cout << "Código executável 'Executavel.exc' terminado com sucesso.\n\n" << endl;
+    cout << "Código executável " << exc_name << " terminado com sucesso.\n\n" << endl;
 }
 
 void delete_tmp_tables() {

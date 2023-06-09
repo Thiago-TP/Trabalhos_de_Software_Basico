@@ -32,26 +32,6 @@ void pre_process(int num, char *src_files[], vector<string> pre_processed_files)
     }
 }
 
-// int main() 
-// {
-//     const string& source_file_name = "código_x85.asm";  // Vai virar "argv"
-    
-//     if (remove_comments             (source_file_name))                     {return 1;}
-//     if (remove_blanks               ("código_x85_descomentado.asm"))        {return 1;}
-//     if (capitalize_text             ("código_x85_sem_linha_vazia.asm"))     {return 1;}
-//     if (equal_spacing_between_tokens("código_x85_caixa_alta.asm"))          {return 1;}
-//     if (remove_enter_after_label    ("código_x85_espaçado.asm"))            {return 1;}
-//     if (catch_absent_text_section   ("código_x85_labels_sem_enter.asm"))    {return 1;}
-//     if (move_data_section_down      ("código_x85_labels_sem_enter.asm"))    {return 1;}
-//     if (hex_const_to_decimal        ("código_x85_com_DATA_embaixo.asm"))    {return 1;}
-
-//     if (catch_double_label          ("código_x85_com_DATA_embaixo.asm"))    {return 1;}
-//     // if (catch_absent_begin_or_end   ("código_x85_labels_sem_enter.asm"))    {return 1;}
-//     // if (catch_lexic_error           (source_file_name))                     {return 1;}
-
-//     return 0;
-// }
-
 
 int sanity_check(ifstream& input_file, ofstream& output_file) 
 {
@@ -71,7 +51,7 @@ int sanity_check(ifstream& input_file, ofstream& output_file)
 int remove_comments(const string& filename)
 {
     cout << "Tirando comentários..." << endl;
-    ifstream input_file(filename);
+    ifstream input_file(filename + ".asm");
     ofstream output_file("código_x85_descomentado.asm");
 
     if (sanity_check(input_file, output_file)) {return 1;} 
@@ -383,10 +363,8 @@ void create_asm(char *original_name, vector<string> pre_processed_files) {
     ifstream ifs("código_x85_CONST_decimal.asm");
     
     string aux_str = original_name;
-    size_t pos = aux_str.find(".asm");
-    aux_str = aux_str.substr(0, pos);
-
     string new_name = aux_str + "_pré-processado.asm";
+    
     ofstream MOD(new_name);
     
     while (getline(ifs, aux_str))
