@@ -71,6 +71,23 @@ O `pre_processed_files` é dado pela `main` em `main.cpp`, e será a entrada da 
 
 #### Documentação do montador
 
+| Instrução | OpCode | Tamanho (palavras) | Ação |
+| --------- | :----: | :----------------: | ---- |
+| ADD    |  1 | 2 | ACC <- ACC + mem(OP) | 
+| SUB    |  2 | 2 | ACC <- ACC - mem(OP) | 
+| MUL    |  3 | 2 | ACC <- ACC * mem(OP) | 
+| DIV    |  4 | 2 | ACC <- ACC / mem(OP) | 
+| JMP    |  5 | 2 | PC <- OP             | 
+| JMPN   |  6 | 2 | PC <- OP se ACC<0    | 
+| JMPP   |  7 | 2 | PC <- OP se ACC>0    | 
+| JMPZ   |  8 | 2 | PC <- OP se ACC=0    | 
+| COPY   |  9 | 3 | mem(OP2) <- mem(OP1) | 
+| LOAD   | 10 | 2 | ACC <- mem(OP)       | 
+| STORE  | 11 | 2 | mem(OP) <- ACC       | 
+| INPUT  | 12 | 2 | mem(OP) <- entrada   | 
+| OUTPUT | 13 | 2 | saída <- mem(OP)     | 
+| STOP   | 14 | 1 | Suspende a execução  |
+
 #### Documentação do ligador
 A ligação se dá pela chamada em sequência de 5 funções (que por sua vez podem chamar subfunções), 
 através da função principal `link`, sendo a maioria delas mudanças estéticas sobre os códigos fontes.
