@@ -8,8 +8,6 @@ int hex_const_to_decimal            (const string&);
 
 int catch_double_label              (const string&); // deve ir para o montador
 int catch_absent_text_section       (const string&); // deve ir para o montador
-// int catch_absent_begin_or_end       (const string&); // deve ir para o montador
-// int catch_lexic_error               (const string&); // deve ir para o montador
 
 void delete_tmp_files ();
 void create_asm (char *, vector<string>); 
@@ -21,12 +19,11 @@ void pre_process(int num, char *src_files[], vector<string> pre_processed_files)
         if (capitalize_text             ("código_x85_sem_linha_vazia.asm"))     return;
         if (equal_spacing_between_tokens("código_x85_caixa_alta.asm"))          return;
         if (remove_enter_after_label    ("código_x85_espaçado.asm"))            return;
-        // if (catch_absent_text_section   ("código_x85_labels_sem_enter.asm"))    return;
+        if (catch_absent_text_section   ("código_x85_labels_sem_enter.asm"))    return;
         if (move_data_section_down      ("código_x85_labels_sem_enter.asm"))    return;
         if (hex_const_to_decimal        ("código_x85_com_DATA_embaixo.asm"))    return;
-        // if (catch_double_label          ("código_x85_com_DATA_embaixo.asm"))    return;
-        // if (catch_absent_begin_or_end   ("código_x85_labels_sem_enter.asm"))    return;
-        // if (catch_lexic_error           (source_file_name))                     return;
+        if (catch_double_label          ("código_x85_com_DATA_embaixo.asm"))    return;
+        
         create_asm(src_files[i], pre_processed_files);
         delete_tmp_files();
     }
