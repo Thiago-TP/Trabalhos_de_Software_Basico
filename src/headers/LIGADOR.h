@@ -7,7 +7,14 @@ void delete_tmp_tables();
 void link(vector<string> obj_files) {
 
     if (obj_files.size() == 1) {
-        cout << "LIGAÇÃO NÂO NECESSÁRIA\n" << endl;
+        cout << "LIGAÇÃO NÃO NECESSÁRIA\n" << endl;
+
+        string label = obj_files[0].substr(0, obj_files[0].find(".obj"));
+        const char* exc_name = (label+".exc").c_str();
+
+        if (!rename(obj_files[0].c_str(), exc_name)) {        
+            cout << "Código executável " << exc_name << " montado com sucesso.\n\n" << endl;
+        }
         return;
     }
 
