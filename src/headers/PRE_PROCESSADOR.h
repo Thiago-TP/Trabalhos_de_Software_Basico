@@ -11,9 +11,9 @@ int catch_double_label              (const string&); // deve ir para o montador
 int catch_absent_text_section       (const string&); // deve ir para o montador
 
 void delete_tmp_files ();
-void create_asm (char *, vector<string>); 
+void create_asm (char *); 
 
-void pre_process(int num, char *src_files[], vector<string> pre_processed_files){
+void pre_process(int num, char *src_files[]){
     cout << "PRÉ-PROCESSAMENTO INICIADO\n" << endl;
     for(int i=1; i<num; i++) {
         cout << "[" << src_files[i] << "]" << endl;
@@ -28,7 +28,7 @@ void pre_process(int num, char *src_files[], vector<string> pre_processed_files)
         if (hex_const_to_decimal        ("código_x85_com_DATA_embaixo.asm"))    return;
         if (catch_double_label          ("código_x85_com_DATA_embaixo.asm"))    return;
         
-        create_asm(src_files[i], pre_processed_files);
+        create_asm(src_files[i]);
         delete_tmp_files();
     }
     cout << "PRÉ-PROCESSAMENTO BEM-SUCEDIDO\n" << endl;
@@ -380,7 +380,8 @@ void delete_tmp_files() {
 
 
 // Cria o .asm pré-processado final, insere no vetor de arquivos pré-processados
-void create_asm(char *original_name, vector<string> pre_processed_files) {
+void create_asm(char *original_name) {
+    
     ifstream ifs("código_x85_CONST_decimal.asm");
     
     string aux_str = original_name;
@@ -388,8 +389,8 @@ void create_asm(char *original_name, vector<string> pre_processed_files) {
     
     ofstream MOD(new_name);
     
-    while (getline(ifs, aux_str))
-        MOD << aux_str << endl;
+    while (getline(ifs, aux_str)) MOD << aux_str << endl;
 
     pre_processed_files.push_back(new_name);
+    cout << pre_processed_files.size() << endl;
 }
