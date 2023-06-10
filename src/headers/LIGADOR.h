@@ -5,14 +5,18 @@ void finish_executable(const string&);
 void delete_tmp_tables();
 
 void link(vector<string> obj_files) {
+    cout << "LIAGAÇÃO INICIADA\n" << endl;
     long unsigned int i;
     for(i=0; i<obj_files.size(); i++) {
+        cout << "[" << obj_files[i] << "]" << endl;
         begin_exc_and_get_offsets(obj_files[i]);
         fill_global_tables_and_exc(obj_files[i], i); 
     }
     make_struct_vector(); 
     finish_executable(obj_files[0]);
     delete_tmp_tables();
+
+    cout << "LIGAÇÃO BEM-SUCEDIDA\n" << endl;
 }
 
 // definir vetor global para 
@@ -99,7 +103,7 @@ void fill_global_tables_and_exc(const string& objfile_name, int file_index) {
     cout << "Construindo TGD com " << objfile_name << "..." << endl;
     if (sanity_check(input_file, TGD_file)) {return;} 
     bool in_DEF = true; string def_line;     
-    while (in_DEF) { cout << def_line << endl;
+    while (in_DEF) { 
         getline(input_file, def_line);        
         if      (def_line == "USO") {in_DEF = false;}
         else if (def_line != "DEF") {TGD_file << offset(def_line, file_index) << endl;}

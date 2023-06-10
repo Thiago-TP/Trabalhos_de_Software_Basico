@@ -6,6 +6,7 @@ int remove_enter_after_label        (const string&);
 int move_data_section_down          (const string&);
 int hex_const_to_decimal            (const string&);
 
+int catch_absent_END                (const string&); // deve ir para o montador
 int catch_double_label              (const string&); // deve ir para o montador
 int catch_absent_text_section       (const string&); // deve ir para o montador
 
@@ -13,11 +14,14 @@ void delete_tmp_files ();
 void create_asm (char *, vector<string>); 
 
 void pre_process(int num, char *src_files[], vector<string> pre_processed_files){
+    cout << "PRÉ-PROCESSAMENTO INICIADO\n" << endl;
     for(int i=1; i<num; i++) {
+        cout << "[" << src_files[i] << "]" << endl;
         if (remove_comments             (src_files[i]))                         return;
-        if (remove_blanks               ("código_x85_descomentado.asm"))        return;
-        if (capitalize_text             ("código_x85_sem_linha_vazia.asm"))     return;
-        if (equal_spacing_between_tokens("código_x85_caixa_alta.asm"))          return;
+        if (capitalize_text             ("código_x85_descomentado.asm"))        return;
+        if (catch_absent_END            ("código_x85_caixa_alta.asm"))          return;
+        if (remove_blanks               ("código_x85_caixa_alta.asm"))          return;
+        if (equal_spacing_between_tokens("código_x85_sem_linha_vazia.asm"))     return;
         if (remove_enter_after_label    ("código_x85_espaçado.asm"))            return;
         if (catch_absent_text_section   ("código_x85_labels_sem_enter.asm"))    return;
         if (move_data_section_down      ("código_x85_labels_sem_enter.asm"))    return;
@@ -27,6 +31,7 @@ void pre_process(int num, char *src_files[], vector<string> pre_processed_files)
         create_asm(src_files[i], pre_processed_files);
         delete_tmp_files();
     }
+    cout << "PRÉ-PROCESSAMENTO BEM-SUCEDIDO\n" << endl;
 }
 
 
@@ -83,8 +88,8 @@ int remove_blanks(const string& filename)
     string line;
     while (getline(input_file, line)) {
 
-        // Não imprime linha em branco
-        if (!line.empty()) {
+        // Não imprime linha em branco ou END
+        if (!line.empty() && line.find("END") == string::npos) {
             output_file << line << endl;
         }
     }
@@ -120,6 +125,26 @@ int capitalize_text(const string& filename)
 
     cout << "Linhas foram colocadas em maiúscula com sucesso.\n\n" << endl;
     return 0;
+}
+
+
+int catch_absent_END (const string& filename) {
+    cout << "Procurando END..." << endl;
+    ifstream input_file(filename);
+
+    string line; int line_num=1;
+    while (getline(input_file, line)) {
+        if (line.find("END") != string::npos) {
+            cout << "END encontrada.\n\n" << endl;
+            return 0;
+        }
+        ++line_num;
+    }
+
+    input_file.close();
+
+    cout << "Erro semântico na linha " << line_num <<": END ausente no arquivo " << filename << " .\n\n" << endl;
+    return 1;
 }
 
 
