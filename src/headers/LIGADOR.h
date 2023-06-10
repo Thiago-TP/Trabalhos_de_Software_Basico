@@ -5,7 +5,13 @@ void finish_executable(const string&);
 void delete_tmp_tables();
 
 void link(vector<string> obj_files) {
-    cout << "LIAGAÇÃO INICIADA\n" << endl;
+
+    if (obj_files.size() == 1) {
+        cout << "LIGAÇÃO NÂO NECESSÁRIA\n" << endl;
+        return;
+    }
+
+    cout << "LIGAÇÃO INICIADA\n" << endl;
     long unsigned int i;
     for(i=0; i<obj_files.size(); i++) {
         cout << "[" << obj_files[i] << "]" << endl;
