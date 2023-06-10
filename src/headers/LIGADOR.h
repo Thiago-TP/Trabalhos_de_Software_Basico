@@ -91,7 +91,7 @@ void begin_exc_and_get_offsets(const string& objfile_name) {
         }
     }
     offsets.push_back(*(--offsets.end()) + code_size);
-    cout << "Executável com " << objfile_name << " inicializado.\n\n" << endl;
+    cout << "Executável com " << objfile_name << " inicializado." << endl;
 }
 
 string offset(const string& table_line, int file_index) {
@@ -121,7 +121,7 @@ void fill_global_tables_and_exc(const string& objfile_name, int file_index) {
         if      (def_line == "USO") {in_DEF = false;}
         else if (def_line != "DEF") {TGD_file << offset(def_line, file_index) << endl;}
     }
-    cout << "TGD com " << objfile_name << " construída.\n\n" << endl;
+    cout << "TGD com " << objfile_name << " construída." << endl;
 
 
     cout << "Construindo TGU com " << objfile_name << "..." << endl;
@@ -132,7 +132,7 @@ void fill_global_tables_and_exc(const string& objfile_name, int file_index) {
         if      (use_line == "RELATIVOS")   {in_USE = false;}
         else if (use_line != "USO")         {TGU_file << offset(use_line, file_index) << endl;}
     }
-    cout << "TGU com " << objfile_name << " construída.\n\n" << endl;
+    cout << "TGU com " << objfile_name << " construída." << endl;
 
 
     cout << "Construindo TGR com " << objfile_name << "..." << endl;
@@ -149,7 +149,7 @@ void fill_global_tables_and_exc(const string& objfile_name, int file_index) {
         }
     }
     relatives.push_back(current_vector);
-    cout << "TGR com " << objfile_name << " construída.\n\n" << endl;
+    cout << "TGR com " << objfile_name << " construída.\n" << endl;
 }
 
 vector<string> ordered_strings (const string& filename) {
@@ -192,7 +192,7 @@ void make_struct_vector() {
 
         value_positions.push_back(current_struct);
     }
-    cout << "Combinação concluída.\n\n" << endl;
+    cout << "Combinação concluída." << endl;
 }
 
 void finish_executable(const string& first_mod_name) {

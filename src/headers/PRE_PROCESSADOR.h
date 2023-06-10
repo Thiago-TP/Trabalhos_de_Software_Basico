@@ -72,7 +72,7 @@ int remove_comments(const string& filename)
     input_file.close();
     output_file.close();
 
-    cout << "Comentários retirados com sucesso.\n\n" << endl;
+    cout << "Comentários retirados com sucesso." << endl;
     return 0;
 }
 
@@ -97,7 +97,7 @@ int remove_blanks(const string& filename)
     input_file.close();
     output_file.close();
 
-    cout << "Linhas removidas com sucesso.\n\n" << endl;
+    cout << "Linhas removidas com sucesso." << endl;
     return 0;
 }
 
@@ -123,7 +123,7 @@ int capitalize_text(const string& filename)
     input_file.close();
     output_file.close();
 
-    cout << "Linhas foram colocadas em maiúscula com sucesso.\n\n" << endl;
+    cout << "Linhas foram colocadas em maiúscula com sucesso." << endl;
     return 0;
 }
 
@@ -135,7 +135,7 @@ int catch_absent_END (const string& filename) {
     string line; int line_num=1;
     while (getline(input_file, line)) {
         if (line.find("END") != string::npos) {
-            cout << "END encontrada.\n\n" << endl;
+            cout << "END encontrada." << endl;
             return 0;
         }
         ++line_num;
@@ -143,7 +143,7 @@ int catch_absent_END (const string& filename) {
 
     input_file.close();
 
-    cout << "Erro semântico na linha " << line_num <<": END ausente no arquivo " << filename << " .\n\n" << endl;
+    cout << "Erro semântico na linha " << line_num <<": END ausente no arquivo " << filename << "." << endl;
     return 1;
 }
 
@@ -177,7 +177,7 @@ int equal_spacing_between_tokens(const string& filename)
     input_file.close();
     output_file.close();
 
-    cout << "Código espaçado com sucesso.\n\n" << endl;
+    cout << "Código espaçado com sucesso." << endl;
     return 0;
 }
 
@@ -209,7 +209,7 @@ int remove_enter_after_label(const string& filename)
     input_file.close();
     output_file.close();
 
-    cout << "Enters depois de label retirados com sucesso.\n\n" << endl;
+    cout << "Enters depois de label retirados com sucesso." << endl;
     return 0;
 }
 
@@ -229,11 +229,11 @@ int catch_absent_text_section(const string& filename)
         size_t pos = line.find("SECTION TEXT");
         if (pos != string::npos) {
             input_file.close();
-            cout << "SECTION TEXT encontrada.\n\n" << endl;
+            cout << "SECTION TEXT encontrada." << endl;
             return 0;
         }
     }
-    cout << "Erro semântico: SECTION TEXT não encontrada.\n\n" << endl;
+    cout << "Erro semântico: SECTION TEXT não encontrada." << endl;
     return 1;    
 }
 
@@ -263,7 +263,7 @@ int move_data_section_down(const string& filename)
         }
         input_file.close();
         output_file.close();
-        cout << "SECTION DATA movida com sucesso.\n\n" << endl;
+        cout << "SECTION DATA movida com sucesso." << endl;
         return 0;
     }
 
@@ -274,11 +274,10 @@ int move_data_section_down(const string& filename)
     for (const auto& modifiedLine : other_slice){output_file << modifiedLine << endl;}
     for (const auto& modifiedLine : text_slice) {output_file << modifiedLine << endl;}
     for (const auto& modifiedLine : data_slice) {output_file << modifiedLine << endl;}
-
-    
+ 
     input_file.close();
     output_file.close();
-    cout << "SECTION DATA movida com sucesso.\n\n" << endl;
+    cout << "SECTION DATA movida com sucesso." << endl;
     return 0;
 }
 
@@ -326,7 +325,7 @@ int hex_const_to_decimal(const string& filename)
     
     input_file.close();
     output_file.close();
-    cout << "Valores convertidos com sucesso.\n\n" << endl;
+    cout << "Valores convertidos com sucesso." << endl;
     return 0;
 }
 

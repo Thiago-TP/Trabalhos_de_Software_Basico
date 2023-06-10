@@ -15,7 +15,7 @@ int main (int argc, char *argv[]) {
 
     vector<string> pre_processed_files, assembled_files;
 
-    assembled_files = {"MOD1.obj"}; // para testes enquanto o montador não é integrado
+    assembled_files = {"MOD1.obj", "MOD2.obj"}; // para testes enquanto o montador não é integrado
     
     pre_process(argc, argv, pre_processed_files);
     // assemble(pre_processed_files, assembled_files);
