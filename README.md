@@ -51,16 +51,15 @@ através da função principal `pre_process`, sendo a maioria delas mudanças es
 Módulo a módulo, em ordem, faz-se:
 1. os comentários são removidos, função `remove_comments`; 
 2. todo o texto é posto em maiúscula, função `capitalize_text`;
-3. verifica-se a presença da diretiva `END`, função `catch_absent_END;` 
-4. 2. linhas em branco são apagadas, função `remove_blanks`;
-5. o espaçamento entre os tokens ficam iguais a um " ", função `equal_spacing_between_tokens`;
-6. espaço vazio após label é preenchido com a linha debaixo, função `remove_enter_after_label`;
-7. a presença de SECTION TEXT é procurada, função `catch_absent_text_section`;
-8. o bloco DATA é movido para baixo do bloco TEXT (caso existam), função `move_data_section_down`;
-9. valores hexadecimais na diretiva `CONST` são convertidos para decimais, função `hex_const_to_decimal`;
-10. a presença de duas labels na mesma linha de código é verificada, função `catch_double_label`;
-11. cria-se o `asm` do arquivo pré-processado final, colocando seu nome no vetor de strings `pre_processed_files`;
-12. deletam-se os arquivos temporários criados nos passos 1, 2, 4, 5, 6, 8 e 9.
+3. 2. linhas em branco são apagadas, função `remove_blanks`;
+4. o espaçamento entre os tokens ficam iguais a um " ", função `equal_spacing_between_tokens`;
+5. espaço vazio após label é preenchido com a linha debaixo, função `remove_enter_after_label`;
+6. a presença de SECTION TEXT é procurada, função `catch_absent_text_section`;
+7. o bloco DATA é movido para baixo do bloco TEXT (caso existam), função `move_data_section_down`;
+8. valores hexadecimais na diretiva `CONST` são convertidos para decimais, função `hex_const_to_decimal`;
+9. a presença de duas labels na mesma linha de código é verificada, função `catch_double_label`;
+10. cria-se o `asm` do arquivo pré-processado final, colocando seu nome no vetor de strings `pre_processed_files`;
+11. deletam-se os arquivos temporários criados nos passos 1, 2, 4, 5, 6, 8 e 9, função `delete_tmp_files`.
 
 O próximo passo só executa se o anterior for bem sucedido, como avisarão as mensagens na tela.
 Nenhuma função modifica os arquivos fonte, ou apenas os leem ou criam arquivos temporários.
@@ -102,13 +101,43 @@ As instruções processadas pelo montador da dupla são detalhadas abaixo.
 
 #### Documentação do ligador
 A ligação se dá pela chamada em sequência de 5 funções (que por sua vez podem chamar subfunções), 
-através da função principal `link`, sendo a maioria delas mudanças estéticas sobre os códigos fontes.
-Módulo a módulo, em ordem, faz-se:
-1. , função `begin_exc_and_get_offsets`; 
-2. , função `fill_global_tables_and_exc`;
-3. , função `make_struct_vector`;
-4. , função `finish_executable`;
-5. , função `delete_tmp_tables`;
+através da função principal `link`. 
+Caso apenas um arquivo tenha sido montado 
+(i. e., o vetor de string global `assemble_files` tem apenas uma entrada), 
+`link` apenas renomeia o arquivo `.obj` de saída do montador para `.exc`, e a compilação está completa.
+Caso contrário, módulo a módulo, em ordem, chama-se:
+
+1. função `begin_exc_and_get_offsets`: <br />
+   o código de máquina não ligado é colocado no vetor de inteiros `exc_vector`
+   e o fator de correção é calculado e inserido no vetor de inteiros `offsets`
+; 
+2. função `fill_global_tables_and_exc`: <br />
+   as tabela de definições, uso, e relativos do módulo 
+   são somadas ao fator de correção apropriado guardado em `offsets`,
+   formando uma porção da 
+   Tabela Global de Definições (arquivo temporário `TGD.txt`), 
+   Tabela Global de USO (arquivo temporário `TGU.txt`), 
+   Tabela Global de Relativos.
+   A TGR está guardada pelo vetor de vetor de inteiros `relatives`, 
+   e cada módulo corresponde a um vetor
+;
+3. função `make_struct_vector`: <br />
+   `TGD.txt` e `TGU.txt` são passadas para vetores de strings que são em seguida ordenados.
+   Esses vetores são então lidos e seus conteúdos passados para uma struct que guarda 
+   a label (`string`),
+   o endereço na memória dessa label (`int`),
+   e os endereços relativos onde essa label é chamada/usada (vector de inteiro).
+   Finalizada a struct, esta é colocada no vetor `value_positions`
+;
+4. função `finish_executable`: <br />
+   com `value_positions` em mãos, o `exc_vector` não ligado é revisitado,
+   de forma que as labels na tabela de uso ganham seus devidos valores e, feito isso,
+   o restante dos endereços relativos é somando ao devido fator de correção em `offsets`.
+   A essa altura `exc_vector` contém o código de máquina ligado e 
+   seu conteúdo é passado para o arquivo `.exc`.
+;
+5. função `delete_tmp_tables`: <br />
+   deletam-se a `TGD.txt` e a `TGU.txt`.
 
 ---
 ## Trabalho 2
