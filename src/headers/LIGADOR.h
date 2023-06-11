@@ -9,11 +9,12 @@ void link() {
     if (assembled_files.size() == 1) {
         cout << "LIGAÇÃO NÃO NECESSÁRIA\n" << endl;
 
-        string label = assembled_files[0].substr(0, assembled_files[0].find(".obj"));
+        string label = assembled_files[0].substr(0, assembled_files[0].find(".obj")); cout << label << endl;  
         const char* exc_name = (label+".exc").c_str();
 
-        if (!rename(assembled_files[0].c_str(), exc_name)) {        
+        if (!rename(assembled_files[0].c_str(), exc_name)) {   
             cout << "Código executável " << exc_name << " montado com sucesso.\n\n" << endl;
+            delete_tmp_tables();
         }
         return;
     }

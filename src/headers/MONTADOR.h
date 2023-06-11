@@ -1,162 +1,133 @@
-// g++ MONTADOR.cpp -o MONTADOR -Wall
-// ./MONTADOR teste1.asm
+#include "headers_passagem_unica/TRANSLATE.h"
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <string>
-#include <vector>
+int one_pass(string filename, vector<string>& assembled_files, size_t number_of_files);
 
-//Arquivos auxiliares
-#include "TABELAS.h"
-#include "VERIFY.h"
-#include "ELEMENTS.h"
-#include "ASSIST.h"
-#include "OUTPUTSTRING.h"
-
-using namespace std;  // Evita usar "std::"
-
-int single_pass                     (const string&);
-
-int main(int argc, char *argv[]) 
-{
-    const string& source_file_name = argv[1];                           // ./MONTADOR <arquivo>         |talvez o idx mude no Linux|
-    if (single_pass             (source_file_name))                     {return 1;}
+int assemble() 
+{   
+    string source_file_name;                                    // Nome do arquivo a ser montado pela passagem única
+    size_t count = 0;                                           // Contador da quantidade de arquivos montados
+    size_t number_of_files = pre_processed_files.size();        // Numero total de arquivos a serem montados
+    
+    // Montagem de arquivos
+    while (count<number_of_files){      
+        source_file_name = pre_processed_files[count];
+        if(one_pass(source_file_name, assembled_files, number_of_files))         {return 1;}
+        count++;
+    }
     return 0;
 }
 
-// ALGORITMO DE PASSAGEM ÚNICA DE CÓDIGO FONTE PARA CÓDIGO OBJETO
-int single_pass(const string& filename)
+// Algoritmo de passagem única que realiza a tradução do código e gera tabelas de símbolo, uso e definição  
+int one_pass(string filename, vector<string>& assembled_files, size_t number_of_files)
 {
-    cout << "Inicializado o algoritmo de passagem unica" << endl;
+    // ENTRADA/SAIDA DE ARQUIVOS
+    const string filename_input = filename;                         // Declaração do nome do arquivo de entrada vindo do pre processamento
 
-    // Verificação de Erro de Leitura/Escrita em arquivos
-    ifstream input_file(filename);                          // Declaração da variável do tipo <arquivo de entrada> atrelada a seu (nome) 
-    ofstream output_file("montagem");                       // Declaração da variável do tipo <arquivo de saída> atrelada a seu (nome)
-    if (sanity_check(input_file, output_file)) {return 1;}  
+    size_t pos = filename.find('_');                                // Encontra '_' e somente o nome antes dele é considerado
+    filename = filename.substr(0, pos); 
 
-    // INÍCIO
-    vector <vector<string>> symbol_table;               // Tabela Símbolos -> Vetor dos endereços das array de strings 
+    const string filename_output = filename + ".objt";              // Declaração do nome do arquivo traduzido               
 
+    ifstream input_file(filename_input);                            // Declaração da variável do tipo <arquivo de entrada> atrelada a seu (nome) 
+    ofstream output_file(filename_output);                          // Declaração da variável do tipo <arquivo de saída> atrelada a seu (nome)
+
+    if (sanity_check(input_file, output_file)) {return 1;}          // Verificação de Erro de Leitura/Escrita em arquivos
+
+    // VARIAVEIS
+    
+    vector <vector<string>> symbol_table;               // Tabela de Símbolos -> Vetor de linhas com colunas (outro vetor)
+    vector <vector<string>> def_table;                  // Tabela de Definições 
+    vector <vector<string>> use_table;                  // Tabela de Uso
+
+
+    string no_reference_code[300];                      // Código sem referência posterior
+    
     string token1;                                      // Token de Operação
     string token2;                                      // Token de argumento ou Constante
     string token3;                                      // Token de argumento 2 para COPY
 
-    string code;                                        // Código da Operação do comando correspondente
+    string command_code;                                // Código da Operação do comando correspondente
     string label;                                       // Rótulo de uma linha
     string line;                                        // Linha a ser lida do código fonte
 
-    int arg_adress;                                     // Endereço do argumento do comando -> Rótulo de diretiva 
-    int arg_adress2;                                    // Endereço do argumento 2 do comando -> Rótulo de diretiva -> COPY
+    string arg_adress;                                  // Endereço do argumento do comando -> Rótulo de diretiva 
+    string arg_adress2;                                 // Endereço do argumento 2 do comando -> Rótulo de diretiva -> COPY
 
-    int label_number;                                   // Número do índice que o vetor guardou a label 
+    int label_number;                                   // Número do índice que o vetor guardou a label - posição (linha) da label na TS
     int line_counter = 1;                               // Contador de linha
-    int location_counter = 0;                           // Contador da posição de endereço
+    int location_counter = 0;                           // Contador da posição  de endereço
 
-    bool link = true;                                   // Indicador de ligação de arquivos objetos
+    int section_text_begin = 0;                         // Define inicio da SECTION TEXT
+    int section_data_begin = 0;                         // Define inicio da SECTION DATA
+    int section_text_end = 0;                           // Define fim da SECTION TEXT
+    int begin = 0;                                      // Define uso de BEGIN
+    int end = 0;                                        // Define uso de END
+    int public_id = 0;                                  // Define uso de PUBLIC
+    int extern_id = 0;                                  // Define uso de EXTERN
+    
+    bool no_section_text = false;                       // Define SECTION TEXT ainda encontrada para analise semantica
+    bool link = false;                                  // Define se o código deve ser traduzido em tabela ou linha MODIFICADO MANUALMENTE PARA TESTES
+    bool linker = false;                                // Define se o código objeto oferecido deve ser ou não para ligação  
+    
+    // INÍCIO
+    cout << endl;
+    cout << "Inicializado o algoritmo de passagem unica" << endl;
 
-    while (getline(input_file, line)) {                                             // Leitura linha a linha arquivo de entrada
-        if (verify_label(line)){                                                    // Verifica se a linha contém um rótulo
-            label = get_label(line);                                                // Obter rótulo / Repassa a linha sem rótulo
-            if (verify_label_TS(label, symbol_table, label_number)){                // Verifica se o rótulo está na Tabela de Símbolos
-                redefine_label_TS(symbol_table, label_number, location_counter);    // Redefinir rótulo, caso já esteja definido na TS
-                define_label_TS(symbol_table, label_number, location_counter);      // Definir rótulo, usado antes em argumento          
-            }   
-            else{                                                                   // Se rótulo não está na Tabela de Símbolos - Criar e Definir            
-                create_define_label_TS(symbol_table, label, location_counter);
-            }
+    // GERAÇÃO LINHA A LINHA DO CÓDIGO TRADUZIDO
+    while (getline(input_file, line)){
+        if(line=="END"){
+            end = 1;                                                                                // END foi usado
         }
-        
-        // OBTENÇÃO DE TOKENS DADA A LINHA ATUAL
-        token1 = get_token(1,line,"void");                                          // CÓDIGO DA OPERAÇÃO DO COMANDO                                          
-        token2 = get_token(2,line,token1);                                          // ARGUMENTO 1 DO COMANDO / VALOR DA DIRETIVA
-        token3 = get_token(3,line,token1);                                          // ARGUMENTO 2 DO COMANDO
-
-        // PROCURAR OPERAÇÃO NA TABELA DE INSTRUÇÕES
-        code = command_code(token1, token2, location_counter);                      
-
-        // PROCURAR ENDEREÇO DO ARGUMENTO PARA REFERÊNCIA POSTERIOR
-        if (token1 == "COPY"){                                                      // COPY possui 2 argumentos
-            arg_adress = command_adress(symbol_table, label, location_counter, label_number, token2);
-            arg_adress2 = command_adress(symbol_table, label, location_counter, label_number, token3);
+        if(line=="SECTION TEXT"){
+            section_text_begin = 1;                                                                 // Inicio da SECTION TEXT
+            line_counter = line_counter + 1;                                                        // Avança uma linha na contagem
         }
-        else{                                                                       // Outras possuem 1 argumento
-            arg_adress = command_adress(symbol_table, label, location_counter, label_number, token2);
+        else if(line=="SECTION DATA"){
+            section_data_begin = 1;                                                                 // Inicio da SECTION DATA 
+            line_counter = line_counter + 1;                                                    
+        }                                              
+        else{
+            // Obtenção de elementos da linha - separação de tokens, Analisador de erros Léxicos
+            scanner(def_table,line_counter, line, label, token1, token2, token3, section_text_end, section_data_begin);
+            // Analisador de erros Sintáticos
+            parser(line_counter, line, token1,token2,label);            
+            // Analisador de erros Semanticos: Rotulo ou dado não definido nas SECTIONS TEXT e DATA
+            semantic_error(begin, end, public_id, extern_id, token1, label, line_counter, section_text_begin, section_text_end,no_section_text,2,no_reference_code, location_counter);
+            // Gerenciador da Tabela de Simbolos
+            symbol_table_manager(label, location_counter, label_number, symbol_table, token1, use_table);  
+            // Gerador de código sem referência posterior
+            no_reference_code_generation(no_reference_code, line, command_code, arg_adress, arg_adress2, label, token1, token2, token3, label_number, location_counter, symbol_table, begin, use_table);
+            // Gerador de código com referência posterior linha a linha após entrar na sessão dados
+            later_reference_fixer(no_reference_code, label_number, symbol_table, label, token3);    
+            // Avança uma linha na contagem
+            line_counter = line_counter + 1;                                                
         }
-
-        // CÓDIDO DE SAÍDA PARA REFERÊNCIA POSTERIOR
-        create_object_code(token1, code, arg_adress, arg_adress2, output_file, link);
-
-        line_counter = line_counter + 1;                                            // Avança uma linha na contagem
-
     } 
-
-    // FINAL DA LEITURA DO ARQUIVO
-    input_file.close();
+    // Ao final do loop no_reference_code se torna um código com referência posterior
+    
+    // Atualizar Tabela de Definições de acordo com Tabela de Símbolos
+    def_table_TS_table(def_table, symbol_table);
+    // Analisador de erros Semanticos: existencia da SECTION TEXT
+    semantic_error(begin, end, public_id, extern_id, token1, label, line_counter, section_text_begin, section_text_end, no_section_text,1,no_reference_code, location_counter);    // Erro Semantico
+    // Analisador de erros Semanticos: relacionados a ligação BEGIN END EXTERN PUBLIC
+    semantic_error(begin, end, public_id, extern_id, token1, label, line_counter, section_text_begin, section_text_end,no_section_text,3,no_reference_code, location_counter);// Erro Semantico
+    
+    if(begin==1 && number_of_files > 1){
+        linker = true;
+        link = true;
+    }
+    
+    // Cria código objeto completo
+    create_object_code(no_reference_code, location_counter, output_file, link);
+    
+    // FINAL DA LEITURA DO ARQUIVO E ESCRITA DO ARQUIVO DE CODIGO TRADUZIDO
     output_file.close();
+    input_file.close();
+    
+    // Muda código objeto para o formato de linker ou manter mesmo arquivo mudando tipo pra .obj
+    link_object_code(filename, def_table, use_table, linker, assembled_files);  
+
+    // FIM
     cout << "Montagem realizada com sucesso.\n\n" << endl;
-    return 0; 
+    return 0;
 }
-
-
-
-/* ALGORITMO DE PRE PROCESSAMENTO
-Separa os comentários da linhas
-Ignora os comentários
-*/
-
-/* ALGOTIMO DE PASSAGEM ÚNICA
-
-contador_posição = 0
-contador_linha = 1
-
-Enquanto arquivo fonte não chegou ao fim, faça:
-
-Obtém uma linha do fonte
-
-Verifica se tem rótulo
-Se houver: 
-            obter rótulo 
-            procurar na tabela de símbolos
-            Se está na tabela de símbolos:
-                Se o rótulo não está definido
-                    Definir e Realizar Referência posterior
-                Senão:
-                    Erro -> redefinir símbolo
-            Senão:
-                    Inserir rótulo e contador de posições
-            repassar a linha sem rótulo
-
-Separa os elementos da linha: operação, operandos
-
-Procurar operação na tabela de instruções
-Se achou:
-            contador_posição = contador_posição + tamanho da instrução
-Senão:
-        procurar na tabela de diretivas
-        Se achou:
-                    subrotina executa diretiva
-                    contador_posição = valor retornado pela subrotina
-        Senão:
-                    Erro operação não identificada
-Procurar endereço para referência posterior:
-    Se Existe rótulo ainda indefinido:
-        atualizar valor lista
-    Senão:
-        criar um rótulo indefinido
-contador_linha = contador_linha + 1
-*/
-
-
-    //Exemplo
-    //              TABELAS DE SIMBOLOS (TS)
-    //  SIMBOLO     VALOR       DEF         LISTA
-    //  ---------------------------------------------
-    //  Array[0]     Array[1]     Array[2]     Array[3]
-    //  Array2[0]    Array2[1]    Array2[2]    Array2[3]
-    //  ...          ...          ...          ...
-
-    // Array[0] = "Nome simbolo"
-    // Array[1] = "Valor endereço"
-    // Array[2] = "Def T ou F"
-    // Array[3] = "Numero da lista"

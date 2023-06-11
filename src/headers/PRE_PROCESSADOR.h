@@ -152,16 +152,18 @@ int remove_enter_after_label(const string& filename){
 
     string line;
     while (getline(input_file, line)) {
+        try{
+            line.pop_back();  // O último caracter é sempre ' '
+            string label = line; 
+            
+            if (label.back() == ':') {
+                getline(input_file, line);
+                output_file << label << " " << line << endl;
+            }
+            else output_file << line << endl;
 
-        line.pop_back();  // O último caracter é sempre ' '
-        string label = line; 
-        
-        if (label.back() == ':') {
-            getline(input_file, line);
-            output_file << label << " " << line << endl;
         }
-
-        else output_file << line << endl;
+        catch(const std::exception& e){}        
     }
 
     input_file.close();
