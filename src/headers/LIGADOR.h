@@ -32,28 +32,6 @@ void link() {
     cout << "LIGAÇÃO BEM-SUCEDIDA\n" << endl;
 }
 
-// definir vetor global para 
-// a Tabela Global de Definições e
-// a Tabela Global de Usos
-
-// ideia:
-// ler cada obj, extrair a tabela de uso, 
-// definição e código máquina não ligados de cada um 
-// criar vetor de offsets (tamanho do código que precede o módulo)
-// criar a TGD
-// juntar todas tabelas de uso numa estrutura só, a TGU  
-// (basta somar os offsets aos números na TU)
-// juntar os códigos máquina num arquivo .exc
-// alterar o .exc conforme a TGD e a TGU 
-
-// ideia:
-// tabela de endereços relativos global é montada
-// juntando as tabelas locais somadas aos offsets
-// primeiro percorre-se o código não ligado de forma que,
-// se o número no índice apontado pela tabela global é positivo (não é EXTERN),
-// soma-se a ele o offset do módulo
-// depois disso, usam-se a TGD e a TGU para atualizar os relativos nulos
-
 // struct valor-posições
 struct VALUE_POS{
     string label;   // label apenas para debug

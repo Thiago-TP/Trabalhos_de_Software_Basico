@@ -33,8 +33,7 @@ void pre_process(int num, char *src_files[]){
 }
 
 
-int sanity_check(ifstream& input_file, ofstream& output_file) 
-{
+int sanity_check(ifstream& input_file, ofstream& output_file) {
     if (!input_file.is_open()) {
         cout << "Falha ao abrir o arquivo de entrada." << endl;
         return 1;
@@ -48,8 +47,7 @@ int sanity_check(ifstream& input_file, ofstream& output_file)
 }
 
 
-int remove_comments(const string& filename)
-{
+int remove_comments(const string& filename){
     cout << "Tirando comentários..." << endl;
     ifstream input_file(filename + ".asm");
     ofstream output_file("código_x85_descomentado.asm");
@@ -59,11 +57,9 @@ int remove_comments(const string& filename)
     string line;
     while (getline(input_file, line)) {
 
-        // Remove comentário (pega a substring até o ';')
         size_t pos = line.find(';');
-        if (pos != string::npos) {
+        if (pos != string::npos) 
             line = line.substr(0, pos);
-        }
         output_file << line << endl;
     }
 
@@ -75,8 +71,7 @@ int remove_comments(const string& filename)
 }
 
 
-int remove_blanks(const string& filename)
-{
+int remove_blanks(const string& filename){
     cout << "Removendo linha em branco..." << endl;
     ifstream input_file(filename);
     ofstream output_file("código_x85_sem_linha_vazia.asm");
@@ -85,11 +80,8 @@ int remove_blanks(const string& filename)
 
     string line;
     while (getline(input_file, line)) {
-
-        // Não imprime linha em branco ou END
-        if (!line.empty() && line.find("END") == string::npos) {
+        if (!line.empty() && line.find("END") == string::npos) 
             output_file << line << endl;
-        }
     }
 
     input_file.close();
@@ -100,8 +92,7 @@ int remove_blanks(const string& filename)
 }
 
 
-int capitalize_text(const string& filename) 
-{
+int capitalize_text(const string& filename) {
     cout << "Deixando as linhas em maiúscula..." << endl;
     ifstream input_file(filename);
     ofstream output_file("código_x85_caixa_alta.asm");
@@ -110,11 +101,8 @@ int capitalize_text(const string& filename)
 
     string line;
     while (getline(input_file, line)) {
-        for (char& c : line) {
-            if (isalpha(c)) {
-                c = toupper(c);
-            }
-        }
+        for (char& c : line) 
+            if (isalpha(c)) c = toupper(c);
         output_file << line << endl;
     }
 
@@ -126,8 +114,7 @@ int capitalize_text(const string& filename)
 }
 
 
-int equal_spacing_between_tokens(const string& filename)
-{
+int equal_spacing_between_tokens(const string& filename){
     cout << "Espaçando o código..." << endl;
     ifstream input_file(filename);
     ofstream output_file("código_x85_espaçado.asm");
@@ -140,13 +127,9 @@ int equal_spacing_between_tokens(const string& filename)
         istringstream iss(line); 
         string token;
         while (iss >> token) {
-
-            // Separa os argumentos do copy com vírgula
             size_t pos = token.find(',');
-            if (token != "," && pos != string::npos) {
+            if (token != "," && pos != string::npos) 
                 token = token.substr(0, pos) + " ,";
-            }
-
             output_file << token << " ";
         }
         output_file << endl;
@@ -160,8 +143,7 @@ int equal_spacing_between_tokens(const string& filename)
 }
 
 
-int remove_enter_after_label(const string& filename)
-{
+int remove_enter_after_label(const string& filename){
     cout << "Tirando enters depois de label..." << endl;
     ifstream input_file(filename);
     ofstream output_file("código_x85_labels_sem_enter.asm");
@@ -179,9 +161,7 @@ int remove_enter_after_label(const string& filename)
             output_file << label << " " << line << endl;
         }
 
-        else {
-            output_file << line << endl;
-        }
+        else output_file << line << endl;
     }
 
     input_file.close();
@@ -192,8 +172,7 @@ int remove_enter_after_label(const string& filename)
 }
 
 
-int catch_absent_text_section(const string& filename)
-{
+int catch_absent_text_section(const string& filename){
     cout << "Procurando SECTION TEXT..." << endl;
     ifstream input_file(filename);
 
@@ -216,8 +195,7 @@ int catch_absent_text_section(const string& filename)
 }
 
 
-int move_data_section_down(const string& filename)
-{
+int move_data_section_down(const string& filename){
     cout << "Movendo SECTION DATA para o final do código..." << endl;
     ifstream input_file(filename);
     ofstream output_file("código_x85_com_DATA_embaixo.asm");
@@ -236,9 +214,7 @@ int move_data_section_down(const string& filename)
     }
 
     if (d_section_index > t_section_index) {
-        for (const auto& modifiedLine : lines) {
-            output_file << modifiedLine << endl;
-        }
+        for (const auto& modifiedLine : lines) output_file << modifiedLine << endl;
         input_file.close();
         output_file.close();
         cout << "SECTION DATA movida com sucesso." << endl;
@@ -261,25 +237,19 @@ int move_data_section_down(const string& filename)
 
 
 string hex2dec(const string& token) {
-    // Check if the string starts with "0x"
     if (token.size() >= 2 && token.substr(0, 2) == "0X") {
-        // Remove the "0x" prefix
-        string hexDigits = token.substr(2);
 
-        // Convert hexadecimal to decimal
+        string hexDigits = token.substr(2);
         unsigned long decimalValue = strtoul(hexDigits.c_str(), nullptr, 16);
 
-        // Convert decimal to string
         ostringstream oss;
         oss << decimalValue;
         return oss.str();
     }
-
-    return token; // Return as-is if not a valid hexadecimal string
+    return token; 
 }
 
-int hex_const_to_decimal(const string& filename)
-{
+int hex_const_to_decimal(const string& filename){
     cout << "Convertendo valores de CONST para decimal..." << endl;
     ifstream input_file(filename);
     ofstream output_file("código_x85_CONST_decimal.asm");
@@ -307,9 +277,7 @@ int hex_const_to_decimal(const string& filename)
     return 0;
 }
 
-
-int catch_double_label(const string& filename)
-{
+int catch_double_label(const string& filename){
     cout << "Procurando label duplamente definida em mesma linha..." << endl;
 
     ifstream input_file(filename);
@@ -340,7 +308,6 @@ int catch_double_label(const string& filename)
     return 0;
 }
 
-
 void delete_tmp_files() {
     const char* filenames[] = { // arquivos temporários criados ao longo do pré-processamento
         "código_x85_descomentado.asm", 
@@ -356,8 +323,6 @@ void delete_tmp_files() {
         if (remove(filename)) cout << "Falha ao deletar o arquivo " << filename << endl;        
 }
 
-
-// Cria o .asm pré-processado final, insere no vetor de arquivos pré-processados
 void create_asm(char *original_name) {
     
     ifstream ifs("código_x85_CONST_decimal.asm");
