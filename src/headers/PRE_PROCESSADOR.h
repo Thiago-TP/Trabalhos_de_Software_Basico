@@ -6,7 +6,6 @@ int remove_enter_after_label        (const string&);
 int move_data_section_down          (const string&);
 int hex_const_to_decimal            (const string&);
 
-// int catch_absent_BEGIN_OR_END       (const string&); 
 int catch_double_label              (const string&); 
 int catch_absent_text_section       (const string&); 
 
@@ -126,39 +125,6 @@ int capitalize_text(const string& filename)
     cout << "Linhas foram colocadas em maiúscula com sucesso." << endl;
     return 0;
 }
-
-
-// int catch_absent_BEGIN_OR_END (const string& filename) {
-//     cout << "Procurando EXTERN/PUBLIC..." << endl;
-//     ifstream input_file(filename);
-
-//     bool has_EXTERN_or_PUBLIC = false;
-    
-//     string line;
-//     while (getline(input_file, line)) {
-//         if (line.find("EXTERN") != string::npos || line.find("PUBLIC") != string::npos) {
-//             has_EXTERN_or_PUBLIC = true;
-//             cout << "Código tem EXTERN/PUBLIC." << endl;
-//             break;
-//         }
-//     }
-
-//     if (!has_EXTERN_or_PUBLIC) {
-//         cout << "Código não tem EXTERN/PUBLIC." << endl; 
-//         return;
-//     }
-
-//     bool has_BEGIN = false, has_END = false;
-//     while (getline(input_file, line)) {
-//         if (line.find("END") != string::npos) cout << "END encontrada." << endl;
-//         if (line.find("BEGIN") != string::npos) cout << "BEGIN encontrada." << endl;
-//     }
-
-//     input_file.close();
-
-//     cout << "Erro semântico: END ausente no arquivo " << filename << "." << endl;
-//     return 1;
-// }
 
 
 int equal_spacing_between_tokens(const string& filename)
