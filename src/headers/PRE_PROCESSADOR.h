@@ -18,7 +18,6 @@ void pre_process(int num, char *src_files[]){
         cout << "[" << src_files[i] << "]" << endl;
         if (remove_comments             (src_files[i]))                         return;
         if (capitalize_text             ("código_x85_descomentado.asm"))        return;
-        // if (catch_absent_BEGIN_OR_END   ("código_x85_caixa_alta.asm"))          return;
         if (remove_blanks               ("código_x85_caixa_alta.asm"))          return;
         if (equal_spacing_between_tokens("código_x85_sem_linha_vazia.asm"))     return;
         if (remove_enter_after_label    ("código_x85_espaçado.asm"))            return;
