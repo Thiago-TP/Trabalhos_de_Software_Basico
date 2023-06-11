@@ -4,15 +4,15 @@ void make_struct_vector();
 void finish_executable(const string&);
 void delete_tmp_tables();
 
-void link(vector<string> obj_files) {
+void link() {
 
-    if (obj_files.size() == 1) {
+    if (assembled_files.size() == 1) {
         cout << "LIGAÇÃO NÃO NECESSÁRIA\n" << endl;
 
-        string label = obj_files[0].substr(0, obj_files[0].find(".obj"));
+        string label = assembled_files[0].substr(0, assembled_files[0].find(".obj"));
         const char* exc_name = (label+".exc").c_str();
 
-        if (!rename(obj_files[0].c_str(), exc_name)) {        
+        if (!rename(assembled_files[0].c_str(), exc_name)) {        
             cout << "Código executável " << exc_name << " montado com sucesso.\n\n" << endl;
         }
         return;
@@ -20,13 +20,13 @@ void link(vector<string> obj_files) {
 
     cout << "LIGAÇÃO INICIADA\n" << endl;
     long unsigned int i;
-    for(i=0; i<obj_files.size(); i++) {
-        cout << "[" << obj_files[i] << "]" << endl;
-        begin_exc_and_get_offsets(obj_files[i]);
-        fill_global_tables_and_exc(obj_files[i], i); 
+    for(i=0; i<assembled_files.size(); i++) {
+        cout << "[" << assembled_files[i] << "]" << endl;
+        begin_exc_and_get_offsets(assembled_files[i]);
+        fill_global_tables_and_exc(assembled_files[i], i); 
     }
     make_struct_vector(); 
-    finish_executable(obj_files[0]);
+    finish_executable(assembled_files[0]);
     delete_tmp_tables();
 
     cout << "LIGAÇÃO BEM-SUCEDIDA\n" << endl;

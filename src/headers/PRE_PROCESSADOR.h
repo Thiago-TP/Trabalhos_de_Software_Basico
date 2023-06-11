@@ -6,9 +6,9 @@ int remove_enter_after_label        (const string&);
 int move_data_section_down          (const string&);
 int hex_const_to_decimal            (const string&);
 
-int catch_absent_END                (const string&); // deve ir para o montador
-int catch_double_label              (const string&); // deve ir para o montador
-int catch_absent_text_section       (const string&); // deve ir para o montador
+// int catch_absent_BEGIN_OR_END       (const string&); 
+int catch_double_label              (const string&); 
+int catch_absent_text_section       (const string&); 
 
 void delete_tmp_files ();
 void create_asm (char *); 
@@ -19,7 +19,7 @@ void pre_process(int num, char *src_files[]){
         cout << "[" << src_files[i] << "]" << endl;
         if (remove_comments             (src_files[i]))                         return;
         if (capitalize_text             ("código_x85_descomentado.asm"))        return;
-        if (catch_absent_END            ("código_x85_caixa_alta.asm"))          return;
+        // if (catch_absent_BEGIN_OR_END   ("código_x85_caixa_alta.asm"))          return;
         if (remove_blanks               ("código_x85_caixa_alta.asm"))          return;
         if (equal_spacing_between_tokens("código_x85_sem_linha_vazia.asm"))     return;
         if (remove_enter_after_label    ("código_x85_espaçado.asm"))            return;
@@ -128,24 +128,37 @@ int capitalize_text(const string& filename)
 }
 
 
-int catch_absent_END (const string& filename) {
-    cout << "Procurando END..." << endl;
-    ifstream input_file(filename);
+// int catch_absent_BEGIN_OR_END (const string& filename) {
+//     cout << "Procurando EXTERN/PUBLIC..." << endl;
+//     ifstream input_file(filename);
 
-    string line; int line_num=1;
-    while (getline(input_file, line)) {
-        if (line.find("END") != string::npos) {
-            cout << "END encontrada." << endl;
-            return 0;
-        }
-        ++line_num;
-    }
+//     bool has_EXTERN_or_PUBLIC = false;
+    
+//     string line;
+//     while (getline(input_file, line)) {
+//         if (line.find("EXTERN") != string::npos || line.find("PUBLIC") != string::npos) {
+//             has_EXTERN_or_PUBLIC = true;
+//             cout << "Código tem EXTERN/PUBLIC." << endl;
+//             break;
+//         }
+//     }
 
-    input_file.close();
+//     if (!has_EXTERN_or_PUBLIC) {
+//         cout << "Código não tem EXTERN/PUBLIC." << endl; 
+//         return;
+//     }
 
-    cout << "Erro semântico na linha " << line_num <<": END ausente no arquivo " << filename << "." << endl;
-    return 1;
-}
+//     bool has_BEGIN = false, has_END = false;
+//     while (getline(input_file, line)) {
+//         if (line.find("END") != string::npos) cout << "END encontrada." << endl;
+//         if (line.find("BEGIN") != string::npos) cout << "BEGIN encontrada." << endl;
+//     }
+
+//     input_file.close();
+
+//     cout << "Erro semântico: END ausente no arquivo " << filename << "." << endl;
+//     return 1;
+// }
 
 
 int equal_spacing_between_tokens(const string& filename)
@@ -391,6 +404,6 @@ void create_asm(char *original_name) {
     
     while (getline(ifs, aux_str)) MOD << aux_str << endl;
 
+    MOD << "END" << endl;
     pre_processed_files.push_back(new_name);
-    cout << pre_processed_files.size() << endl;
 }

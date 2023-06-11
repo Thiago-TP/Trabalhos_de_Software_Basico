@@ -7,7 +7,7 @@
 
 using namespace std;
 
-vector<string> pre_processed_files, assembled_files;
+vector<string> pre_processed_files, assembled_files;    // globais que serão usadas pelos headers
 
 #include "headers/PRE_PROCESSADOR.h"
 // #include "headers/MONTADOR.h"
@@ -15,13 +15,11 @@ vector<string> pre_processed_files, assembled_files;
 
 int main (int argc, char *argv[]) {
 
-
     assembled_files = {"MOD1.obj", "MOD2.obj"}; // para testes enquanto o montador não é integrado
     
     pre_process(argc, argv);
-    cout << pre_processed_files.size() << endl;
-    // assemble(pre_processed_files, assembled_files);
-    // link(assembled_files);
+    // assemble();
+    link();
 
     return 0;
 }
