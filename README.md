@@ -51,7 +51,7 @@ através da função principal `pre_process`, sendo a maioria delas mudanças es
 Módulo a módulo, em ordem, faz-se:
 1. os comentários são removidos, função `remove_comments`; 
 2. todo o texto é posto em maiúscula, função `capitalize_text`;
-3. 2. linhas em branco são apagadas, função `remove_blanks`;
+3. linhas em branco são apagadas, função `remove_blanks`;
 4. o espaçamento entre os tokens ficam iguais a um " ", função `equal_spacing_between_tokens`;
 5. espaço vazio após label é preenchido com a linha debaixo, função `remove_enter_after_label`;
 6. a presença de SECTION TEXT é procurada, função `catch_absent_text_section`;
