@@ -31,7 +31,7 @@ section .text
         int 80h     
 
 ; imprime a string de tamanho edx apontada por ecx.
-; edx e ecx devem ter sido colocados na pilha
+; eax a edx devem ter sido colocados na pilha em ordem reversa
 imprime_texto:
     push    ebp
     mov     ebp, esp
