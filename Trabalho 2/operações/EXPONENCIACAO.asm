@@ -1,7 +1,10 @@
+; seção de variáveis
 section .bss
 
-section .data
+; seção de dados
+section .data 
 
+; seção de códigos
 section .text
-global _start
-_start:
+    global _start
+    _start:
