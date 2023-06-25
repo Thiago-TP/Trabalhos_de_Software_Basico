@@ -5,6 +5,10 @@ section .bss
 section .data 
 
 ; seção de códigos
+extern  multiplicacao
 section .text
-    global _start
-    _start:
+    multiplicacao:
+        enter   0, 0
+        
+        leave
+        ret

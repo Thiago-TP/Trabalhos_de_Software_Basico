@@ -16,10 +16,10 @@ handle_text:
 ask_name:
     enter   16, 0                           ; 16 = 4*4 bytes
 
-    mov     DWORD [ebp - 4], pede_nome_size ; tamanho da string em bytes
-    mov     DWORD [ebp - 8], pede_nome      ; endereço da string 
-    mov     DWORD [ebp - 12], 1             ; valor 1 -> stdout 
-    mov     DWORD [ebp - 16], 4             ; valor 4 -> print syscall
+    mov     dword [ebp - 4], pede_nome_size ; tamanho da string em bytes
+    mov     dword [ebp - 8], pede_nome      ; endereço da string 
+    mov     dword [ebp - 12], 1             ; valor 1 -> stdout 
+    mov     dword [ebp - 16], 4             ; valor 4 -> print syscall
     
     call    handle_text
     
@@ -29,16 +29,12 @@ ask_name:
 read_name: 
     enter   16, 0                           ; 16 = 4*4 bytes
 
-    mov     DWORD [ebp - 4], user_name_size ; tamanho da string em bytes
-    mov     DWORD [ebp - 8], user_name      ; endereço da string 
-    mov     DWORD [ebp - 12], 0             ; valor 0 em ebx -> stdin 
-    mov     DWORD [ebp - 16], 3             ; valor 3 em eax -> scanf syscall
+    mov     dword [ebp - 4], user_name_size ; tamanho da string em bytes
+    mov     dword [ebp - 8], user_name      ; endereço da string 
+    mov     dword [ebp - 12], 0             ; valor 0 em ebx -> stdin 
+    mov     dword [ebp - 16], 3             ; valor 3 em eax -> scanf syscall
     
     call    handle_text
-
-    mov     ecx, user_name
-    mov     edx, user_name_size
-    mov     BYTE [ecx+edx], 0
     
     leave
     ret 
@@ -46,18 +42,18 @@ read_name:
 welcome:
     enter   16, 0                           ; 16 = 4*4 bytes
 
-    mov     DWORD [ebp - 4], hola_size      ; tamanho da string em bytes
-    mov     DWORD [ebp - 8], hola           ; endereço da string 
-    mov     DWORD [ebp - 12], 1             ; valor 1 -> stdout 
-    mov     DWORD [ebp - 16], 4             ; valor 4 -> print syscall
+    mov     dword [ebp - 4], hola_size      ; tamanho da string em bytes
+    mov     dword [ebp - 8], hola           ; endereço da string 
+    mov     dword [ebp - 12], 1             ; valor 1 -> stdout 
+    mov     dword [ebp - 16], 4             ; valor 4 -> print syscall
     call    handle_text
 
-    mov     DWORD [ebp - 4], user_name_size ; tamanho da string em bytes
-    mov     DWORD [ebp - 8], user_name      ; endereço da string
+    mov     dword [ebp - 4], user_name_size ; tamanho da string em bytes
+    mov     dword [ebp - 8], user_name      ; endereço da string
     call    handle_text
 
-    mov     DWORD [ebp - 4], bem_vindo_size ; tamanho da string em bytes
-    mov     DWORD [ebp - 8], bem_vindo      ; endereço da string
+    mov     dword [ebp - 4], bem_vindo_size ; tamanho da string em bytes
+    mov     dword [ebp - 8], bem_vindo      ; endereço da string
     call    handle_text
     
     leave
@@ -66,10 +62,10 @@ welcome:
 ask_precision:
     enter   16, 0                               ; 16 = 4*4 bytes
 
-    mov     DWORD [ebp - 4], qual_precision_size ; tamanho da string em bytes
-    mov     DWORD [ebp - 8], qual_precision      ; endereço da string 
-    mov     DWORD [ebp - 12], 1                 ; valor 1 -> stdout 
-    mov     DWORD [ebp - 16], 4                 ; valor 4 -> print syscall 
+    mov     dword [ebp - 4], qual_precision_size ; tamanho da string em bytes
+    mov     dword [ebp - 8], qual_precision      ; endereço da string 
+    mov     dword [ebp - 12], 1                 ; valor 1 -> stdout 
+    mov     dword [ebp - 16], 4                 ; valor 4 -> print syscall 
     
     call    handle_text
     
@@ -79,10 +75,10 @@ ask_precision:
 read_precision:
     enter   16, 0                           ; 16 = 4*4 bytes
 
-    mov     DWORD [ebp - 4], is_32bit_size  ; tamanho da string em bytes
-    mov     DWORD [ebp - 8], is_32bit       ; endereço da string 
-    mov     DWORD [ebp - 12], 0             ; valor 0 em ebx -> stdin 
-    mov     DWORD [ebp - 16], 3             ; valor 3 em eax -> scanf syscall
+    mov     dword [ebp - 4], is_32bit_size  ; tamanho da string em bytes
+    mov     dword [ebp - 8], is_32bit       ; endereço da string 
+    mov     dword [ebp - 12], 0             ; valor 0 em ebx -> stdin 
+    mov     dword [ebp - 16], 3             ; valor 3 em eax -> scanf syscall
     
     call    handle_text
     
@@ -92,10 +88,10 @@ read_precision:
 show_menu:
     enter   16, 0                       ; 16 = 4*4 bytes
 
-    mov     DWORD [ebp - 4], menu_size  ; tamanho da string em bytes
-    mov     DWORD [ebp - 8], menu       ; endereço da string 
-    mov     DWORD [ebp - 12], 1         ; valor 1 -> stdout 
-    mov     DWORD [ebp - 16], 4         ; valor 4 -> print syscall
+    mov     dword [ebp - 4], menu_size  ; tamanho da string em bytes
+    mov     dword [ebp - 8], menu       ; endereço da string 
+    mov     dword [ebp - 12], 1         ; valor 1 -> stdout 
+    mov     dword [ebp - 16], 4         ; valor 4 -> print syscall
     
     call    handle_text
     
@@ -105,15 +101,12 @@ show_menu:
 read_op:
     enter   16, 0                               ; 16 = 4*4 bytes
 
-    mov     DWORD [ebp - 4], user_choice_size   ; tamanho da string em bytes
-    mov     DWORD [ebp - 8], user_choice        ; endereço da string 
-    mov     DWORD [ebp - 12], 0                 ; valor 0 em ebx -> stdin 
-    mov     DWORD [ebp - 16], 3                 ; valor 3 em eax -> scanf syscall
+    mov     dword [ebp - 4], user_choice_size   ; tamanho da string em bytes
+    mov     dword [ebp - 8], user_choice        ; endereço da string 
+    mov     dword [ebp - 12], 0                 ; valor 0 em ebx -> stdin 
+    mov     dword [ebp - 16], 3                 ; valor 3 em eax -> scanf syscall
     
     call    handle_text
     
     leave
     ret  
-
-colect_operands:
-    ret

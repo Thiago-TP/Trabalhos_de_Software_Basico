@@ -1,17 +1,16 @@
+global  user_choice, user_choice_size
 ; seção de variáveis
 section .bss
     user_name           resb    20  ; name do usuário pode ter até 20 letras ascii
-    user_name_size      resb    1   ; número de bytes no name do usuário
-    
     is_32bit            resb    1   ; byte flag de 32 bits
-    is_32bit_size       resb    1   ; 
-    
     user_choice         resb    1   ; opção de operação do usuário (byte entre 1 e 7)
-    user_choice_size    resb    1   ; 
 
 
 ; seção de dados
 section .data   ; apenas strings podem ser globais
+    user_name_size      dd  20      ; número de bytes no nome do usuário
+    is_32bit_size       dd  1       ; número de bytes na flag de 32 bits
+    user_choice_size    dd  2       ; número de bytes na opção de operação
 
     pede_nome           db  "Bem vindo. Digite seu nome: "
     pede_nome_size      equ $-pede_nome
@@ -21,8 +20,8 @@ section .data   ; apenas strings podem ser globais
     bem_vindo           db  ", bem-vindo ao programa de CALC IA-32.", 10    ; 10 é o \n
     bem_vindo_size      equ $-bem_vindo
 
-    qual_precision       db  "Vai trabalhar com 16 ou 32 bits? (digite 0 para 16, e 1 para 32): "
-    qual_precision_size  equ $-qual_precision
+    qual_precision      db  "Vai trabalhar com 16 ou 32 bits? (digite 0 para 16, e 1 para 32): "
+    qual_precision_size equ $-qual_precision
 
     menu                db      10, 10, 
     db  "ESCOLHA UMA OPÇÃO:",   10, 
@@ -45,9 +44,12 @@ section .data   ; apenas strings podem ser globais
 
 
 ; seção de códigos
+extern  soma, subtracao, multiplicacao, divisao, exponenciacao, mod
+extern  ask_name, read_name, welcome, ask_precision, read_precision, show_menu, read_op, execute_op 
 section .text
+
 global _start
-_start:         
+_start:        
     call    ask_name
     call    read_name
     call    welcome
@@ -64,9 +66,56 @@ _start:
 
 
 execute_op: 
+    enter   0, 0
+    
+    cmp     byte [user_choice], '1'
+    je      some 
+    
+    cmp     byte [user_choice], '2'
+    je      subtraia 
+    
+    cmp     byte [user_choice], '3'
+    je      multiplique 
+    
+    cmp     byte [user_choice], '4'
+    je      divida 
+    
+    cmp     byte [user_choice], '5'
+    je      exponencie  
+    
+    cmp     byte [user_choice], '6'
+    je      calc_resto 
+
     ; fim do programa
-    mov eax, 1    
-    mov ebx, 0
-    int 80h
+    mov     eax, 1    
+    mov     ebx, 0
+    int     80h
+
+    some:           call    soma 
+                    jmp     op_done
+    
+    subtraia:       call    subtracao
+                    jmp     op_done
+    
+    multiplique:    call    multiplicacao
+                    jmp     op_done
+    
+    divida:         call    divisao
+                    jmp     op_done
+    
+    exponencie:     call    exponenciacao
+                    jmp     op_done
+    
+    calc_resto:     call    mod 
+
+    op_done:
+    leave 
+    ret 
+
+collect_numbers:
+    enter   0, 0
+
+    leave 
+    ret
 
 %include "IO_functions.asm"         ; arquivo temporário para deixar a main limpa

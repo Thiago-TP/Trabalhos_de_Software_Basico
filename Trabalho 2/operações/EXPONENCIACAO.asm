@@ -5,6 +5,10 @@ section .bss
 section .data 
 
 ; seção de códigos
+extern  exponenciacao
 section .text
-    global _start
-    _start:
+    exponenciacao:
+        enter   0, 0
+        
+        leave
+        ret

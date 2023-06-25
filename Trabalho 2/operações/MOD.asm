@@ -5,6 +5,10 @@ section .bss
 section .data 
 
 ; seção de códigos
+extern  mod
 section .text
-    global _start
-    _start:
+    mod:
+        enter   0, 0
+        
+        leave
+        ret

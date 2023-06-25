@@ -5,6 +5,10 @@ section .bss
 section .data 
 
 ; seção de códigos
+extern  soma
 section .text
-    global _start
-    _start:
+    soma:
+        enter   0, 0
+        
+        leave
+        ret
