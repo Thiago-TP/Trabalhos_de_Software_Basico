@@ -4,13 +4,14 @@ section .bss
     user_name           resb    20  ; name do usuário pode ter até 20 letras ascii
     is_32bit            resb    1   ; byte flag de 32 bits
     user_choice         resb    1   ; opção de operação do usuário (byte entre 1 e 7)
-
+    N1                  resb    4   ; primeiro número de 32 bits dado pelo usuário
+    N2                  resb    4   ; segundo número de 32 bits dado pelo usuário
 
 ; seção de dados
 section .data   ; apenas strings podem ser globais
     user_name_size      dd  20      ; número de bytes no nome do usuário
     is_32bit_size       dd  1       ; número de bytes na flag de 32 bits
-    user_choice_size    dd  2       ; número de bytes na opção de operação
+    user_choice_size    dd  1       ; número de bytes na opção de operação
 
     pede_nome           db  "Bem vindo. Digite seu nome: "
     pede_nome_size      equ $-pede_nome
@@ -34,8 +35,8 @@ section .data   ; apenas strings podem ser globais
     db  "-7: SAIR",             10, 10
     menu_size           equ $-menu  
 
-    qual_o_N1           db  "Digite o primeiro numero: ", 10
-    qual_o_N2           db  "Digite o segundo numero: ", 10
+    qual_o_N1           db  "Digite o primeiro numero: "
+    qual_o_N2           db  "Digite o segundo numero: "
     qual_o_N1_size      equ $-qual_o_N1
     qual_o_N2_size      equ $-qual_o_N2
 
@@ -66,8 +67,16 @@ _start:
 
 
 execute_op: 
-    enter   0, 0
+    enter   8, 0    ; 8 = 2*4 bytes
     
+    cmp     byte [user_choice], '7'
+    je      saia
+
+    ; pede os números e os coloca na pilha
+    ;call    collect_numbers
+    ;mov     dword [ebp - 4], N1
+    ;mov     dword [ebp - 8], N2
+
     cmp     byte [user_choice], '1'
     je      some 
     
@@ -87,6 +96,7 @@ execute_op:
     je      calc_resto 
 
     ; fim do programa
+    saia:
     mov     eax, 1    
     mov     ebx, 0
     int     80h
@@ -112,10 +122,36 @@ execute_op:
     leave 
     ret 
 
-collect_numbers:
+
+collect_numbers:        ; TODO: collect_numbers
     enter   0, 0
+
+    ;call    ask_N1
+    ;call    read_N1
+
+    ;call    ask_N2
+    ;call    read_N2
 
     leave 
     ret
 
 %include "IO_functions.asm"         ; arquivo temporário para deixar a main limpa
+
+ask_N1:
+    enter   16, 0                           ; 16 = 4*4 bytes
+
+    mov     dword [ebp - 4], qual_o_N1_size ; tamanho da string em bytes
+    mov     dword [ebp - 8], qual_o_N1      ; endereço da string 
+    mov     dword [ebp - 12], 1             ; valor 1 -> stdout 
+    mov     dword [ebp - 16], 4             ; valor 4 -> print syscall
+    
+    call    handle_text
+    
+    leave
+    ret 
+
+read_N1: 
+    enter   16, 0                           ; 16 = 4*4 bytes
+    
+    leave
+    ret
