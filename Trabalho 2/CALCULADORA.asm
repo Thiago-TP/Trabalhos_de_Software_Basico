@@ -1,157 +1,316 @@
-global  user_choice, user_choice_size
-; seção de variáveis
-section .bss
-    user_name           resb    20  ; name do usuário pode ter até 20 letras ascii
-    is_32bit            resb    1   ; byte flag de 32 bits
-    user_choice         resb    1   ; opção de operação do usuário (byte entre 1 e 7)
-    N1                  resb    4   ; primeiro número de 32 bits dado pelo usuário
-    N2                  resb    4   ; segundo número de 32 bits dado pelo usuário
+;...........................................;
+;   Cleyton Erick Caldas Sá - 190026201     ;
+;   Thiago Tomás de Paula   - 190038641     ;
+;   2023/1 - julho de 2023                  ;
+;...........................................;
+;   CIC0104 - Software Básico               ;
+;   Turma 1, prof. Bruno L. M. Espinoza     ;
+;   Módulo principal do Trabalho 2          ;
+;...........................................;
+;   CALCULADORA EM ASSEMBLY NASM IA-32      ; 
+;...........................................;
 
-; seção de dados
-section .data   ; apenas strings podem ser globais
-    user_name_size      dd  20      ; número de bytes no nome do usuário
-    is_32bit_size       dd  1       ; número de bytes na flag de 32 bits
-    user_choice_size    dd  1       ; número de bytes na opção de operação
+; Detalhes em https://github.com/Thiago-TP/Trabalhos_de_Software_Basico.git
 
-    pede_nome           db  "Bem vindo. Digite seu nome: "
-    pede_nome_size      equ $-pede_nome
+SECTION .data
+    type_name           db  "Bem vindo. Digite seu nome: ", 0
+    type_name_size      equ $-type_name
 
-    hola                db  "Hola, "
-    hola_size           equ $-hola
-    bem_vindo           db  ", bem-vindo ao programa de CALC IA-32.", 10    ; 10 é o \n
-    bem_vindo_size      equ $-bem_vindo
+    welcome_msg1        db  "Hola, ", 0
+    welcome_msg1_size   equ $-welcome_msg1
+    welcome_msg2        db  ", bem-vindo ao programa de CALC IA-32", 10 
+    welcome_msg2_size   equ $-welcome_msg2
 
-    qual_precision      db  "Vai trabalhar com 16 ou 32 bits? (digite 0 para 16, e 1 para 32): "
-    qual_precision_size equ $-qual_precision
+    type_precision      db  "Vai trabalhar com 16 ou 32 bits? (digite 0 para 16, e 1 para 32): ", 0
+    type_precision_size equ $-type_precision
 
-    menu                db      10, 10, 
-    db  "ESCOLHA UMA OPÇÃO:",   10, 
-    db  "-1: SOMA",             10
-    db  "-2: SUBTRACAO",        10
-    db  "-3: MULTIPLICACAO",    10
-    db  "-4: DIVISAO",          10
-    db  "-5: EXPONENCIACAO",    10
-    db  "-6: MOD",              10
-    db  "-7: SAIR",             10, 10
-    menu_size           equ $-menu  
+    menu        db  10
+                db  "ESCOLHA UMA OPÇÃO:",   10 
+                db  "- 1: SOMA",            10
+                db  "- 2: SUBTRACAO",       10
+                db  "- 3: MULTIPLICACAO",   10
+                db  "- 4: DIVISAO",         10
+                db  "- 5: EXPONENCIACAO",   10
+                db  "- 6: MOD",             10
+                db  "- 7: SAIR",            10
+    menu_size   equ $-menu
 
-    qual_o_N1           db  "Digite o primeiro numero: "
-    qual_o_N2           db  "Digite o segundo numero: "
-    qual_o_N1_size      equ $-qual_o_N1
-    qual_o_N2_size      equ $-qual_o_N2
+    name_size   dd 0
 
-    ocorreu_OF          db  "OCORREU OVERFLOW", 10
-    ocorreu_OF_size     equ $-ocorreu_OF
+SECTION .bss
+    name            resb    1
+    precision       resd    1
+    operation       resd    1
 
+%include "io.mac" ; SOMENTE PARA DEBUG, DELETAR NA VERSÃO FINAL
 
-; seção de códigos
+SECTION .text
+global _start 
+_start:
+    call getName
+    call getPrecision
+    while_true:
+        call getOperation
+        call runOperation
+        PutLInt -1
+    jmp while_true
+
+; "A função principal e funções de entrada e saída de dados 
+; devem estar no mesmo arquivo CALCULADORA.ASM.
+; Porém as operações deve estar cada uma num arquivo separado
+; (ex.: SOMA.ASM, DIVISAO.ASM, etc.) 
+; o programa deve ser compilado e ligado para gerar um único executável. 
+; Para isso deve estar no arquivo README as instruções de compilar e ligar.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+global  precision
+extern  putString, getInt16, getInt32, putInt
 extern  soma, subtracao, multiplicacao, divisao, exponenciacao, mod
-extern  ask_name, read_name, welcome, ask_precision, read_precision, show_menu, read_op, execute_op 
-section .text
+ 
+getName:
+    enter 0, 0
 
-global _start
-_start:        
-    call    ask_name
-    call    read_name
-    call    welcome
+    push type_name_size
+    push type_name
+    call putString 
+    
+    push DWORD [name_size]
+    push name
+    call getString  
+    mov [name_size], eax
 
-    call    ask_precision
-    call    read_precision
+    push welcome_msg1_size
+    push welcome_msg1
+    call putString   
+    
+    push DWORD [name_size]
+    push name
+    call putString
 
-    repeat:
-        call    show_menu
-        call    read_op
-        call    execute_op          ; no momento apenas fecha o programa
+    push welcome_msg2_size
+    push welcome_msg2
+    call putString 
     
-    jmp     repeat
+    leave
+    ret 40
 
+getPrecision:
+    enter 0, 0
 
-execute_op: 
-    enter   8, 0    ; 8 = 2*4 bytes
-    
-    cmp     byte [user_choice], '7'
-    je      saia
+    push type_precision_size
+    push type_precision
+    call putString 
 
-    ; pede os números e os coloca na pilha
-    ;call    collect_numbers
-    ;mov     dword [ebp - 4], N1
-    ;mov     dword [ebp - 8], N2
+    push precision
+    call getInt32
+    mov  [precision], eax
 
-    cmp     byte [user_choice], '1'
-    je      some 
-    
-    cmp     byte [user_choice], '2'
-    je      subtraia 
-    
-    cmp     byte [user_choice], '3'
-    je      multiplique 
-    
-    cmp     byte [user_choice], '4'
-    je      divida 
-    
-    cmp     byte [user_choice], '5'
-    je      exponencie  
-    
-    cmp     byte [user_choice], '6'
-    je      calc_resto 
+    leave
+    ret 12
 
-    ; fim do programa
-    saia:
-    mov     eax, 1    
-    mov     ebx, 0
-    int     80h
+; Para o menu a ideia é chamar a função de saída de string uma vez por linha.
+getOperation:
+    enter 0, 0
 
-    some:           call    soma 
-                    jmp     op_done
-    
-    subtraia:       call    subtracao
-                    jmp     op_done
-    
-    multiplique:    call    multiplicacao
-                    jmp     op_done
-    
-    divida:         call    divisao
-                    jmp     op_done
-    
-    exponencie:     call    exponenciacao
-                    jmp     op_done
-    
-    calc_resto:     call    mod 
+    push menu_size
+    push menu
+    call putString 
 
-    op_done:
+    push operation
+    call getInt32
+    mov  [operation], eax
+
+    leave
+    ret 12
+
+; "Ao receber a opção do menu, que pode ser qualquer número entre 1 a 6, 
+; deve ir para uma função que vai executar a operação requerida. 
+; Tal função deve pedir 2 números inteiros (que pode ter o sinal negativo). 
+; Deve-se assumir que são de 16 ou 32 bits de acordo com a opção digitada pelo usuário. 
+; Devem ser armazenados em variáveis locais. Deve mostrar o resultado final. 
+; Esperar o usuário digitar ENTER e novamente mostrar menu de opções. 
+; Até o usuário digitar a opção de sair."
+runOperation:
+    enter 0, 0
+
+    cmp DWORD [operation], 1
+    je run_add
+    cmp DWORD [operation], 2
+    je run_sub
+    cmp DWORD [operation], 3
+    je run_mul
+    cmp DWORD [operation], 4
+    je run_div
+    cmp DWORD [operation], 5
+    je run_exp
+    cmp DWORD [operation], 6
+    je run_mod
+    cmp DWORD [operation], 7
+    je end_program
+
+    run_add:    call soma
+                jmp  end_run
+    run_sub:    call subtracao
+                jmp  end_run
+    run_mul:    call multiplicacao
+                jmp  end_run
+    run_div:    call divisao
+                jmp  end_run
+    run_exp:    call exponenciacao
+                jmp  end_run
+    run_mod:    call mod
+
+    end_run:
+    ; PutLInt -1    TODO: CONSERTAR PROBLEMA NO RETORNO DESTA FUNÇÃO
+    leave
+    ret
+
+    end_program:
+    mov eax, 1 
+    mov ebx, 0
+    int 0x80
+
+; "Todas as mensagens de TEXTO devem ser mostradas 
+; usando uma ÚNICA função de saída de dados de string. 
+; Esta função deve receber pela pilha o ponteiro da variável global que
+; contém o string e a quantidade de bytes a serem escritos. 
+; Não deve ter retorno."
+putString:
+    enter 0, 0
+
+    sub esi, esi        
+    mov ecx, [ebp + 8]
+    print_for:
+        cmp DWORD esi, [ebp + 12]
+        jae end_print_for
+
+        mov eax, 4
+        mov ebx, 1
+        mov edx, 1          
+        int 0x80  
+
+        inc esi
+        inc ecx
+        jmp print_for
+
+    end_print_for:
     leave 
     ret 
 
+; "A leitura do teclado deve ser feita por 2 funções: 
+; uma para ler strings, e outra para ler números." 
+getString:
+    enter 0, 0
+       
+    mov ecx, [ebp + 8] 
+    read_while:
+        mov eax, 3
+        mov ebx, 0
+        mov edx, 1          
+        int 0x80  
 
-collect_numbers:        ; TODO: collect_numbers
-    enter   0, 0
+        sub eax, eax 
+        mov al, [ecx]
+        inc ecx
 
-    ;call    ask_N1
-    ;call    read_N1
+        cmp al, 10 
+        jne read_while
+        
+    mov eax, ecx
+    sub eax, [ebp + 8]
+    dec eax
+    
+    leave 
+    ret 
 
-    ;call    ask_N2
-    ;call    read_N2
-
+putInt:
+    enter 0, 0
     leave 
     ret
 
-%include "IO_functions.asm"         ; arquivo temporário para deixar a main limpa
+; "A de ler números deve ter duas versões: 16 e 32 bits."
+getInt32:
+    enter 0, 0
 
-ask_N1:
-    enter   16, 0                           ; 16 = 4*4 bytes
+    sub esi, esi        ; esi = inteiro convertido
+    sub edi, edi        ; edi = flag de negativo
+    mov ecx, [ebp + 8]  ; ecx = endereço do espaço reservado para o número
+    while_getChar32:
+        mov eax, 3
+        mov ebx, 0
+        mov edx, 1          
+        int 0x80  
 
-    mov     dword [ebp - 4], qual_o_N1_size ; tamanho da string em bytes
-    mov     dword [ebp - 8], qual_o_N1      ; endereço da string 
-    mov     dword [ebp - 12], 1             ; valor 1 -> stdout 
-    mov     dword [ebp - 16], 4             ; valor 4 -> print syscall
-    
-    call    handle_text
-    
-    leave
+        sub eax, eax 
+        mov al, [ecx]
+        cmp al, 10 
+        je  end_while_getChar32
+
+        cmp al, '-' 
+        je  isNegative32
+
+        sub al, '0'     ; al = dígito - '0' = (int) dígito
+        mov ebx, esi 
+        shl ebx, 1      ; ebx = 2*acc
+        shl esi, 3      ; esi = 8*acc
+        add esi, ebx    ; esi = 10*acc
+
+        add esi, eax    ; esi = 10*acc + (int) dígito
+        jmp while_getChar32
+
+        isNegative32:
+        mov edi, 1
+        jmp while_getChar32
+
+    end_while_getChar32:
+    cmp edi, 0
+    je isPositive32
+    neg esi    
+    isPositive32:
+    mov eax, esi
+
+    leave 
     ret 
 
-read_N1: 
-    enter   16, 0                           ; 16 = 4*4 bytes
-    
-    leave
+; "A de ler números deve ter duas versões: 16 e 32 bits."
+getInt16:
+    enter 0, 0
+
+    sub esi, esi        ; esi = inteiro convertido
+    sub edi, edi        ; edi = flag de negativo
+    mov ecx, [ebp + 8]  ; ecx = endereço do espaço reservado para o número
+    while_getChar16:
+        mov eax, 3
+        mov ebx, 0
+        mov edx, 1          
+        int 0x80  
+
+        sub eax, eax 
+        mov al, [ecx]
+        cmp al, 10 
+        je  end_while_getChar16
+
+        cmp al, '-' 
+        je  isNegative16
+
+        sub al, '0'     ; al = dígito - '0' = (int) dígito
+        mov ebx, esi 
+        shl ebx, 1      ; ebx = 2*acc
+        shl esi, 3      ; esi = 8*acc
+        add esi, ebx    ; esi = 10*acc
+
+        add esi, eax    ; esi = 10*acc + (int) dígito
+        jmp while_getChar16
+
+        isNegative16:
+        mov edi, 1
+        jmp while_getChar16
+
+    end_while_getChar16:
+    cmp edi, 0
+    je isPositive16
+    neg esi    
+    isPositive16:
+    mov eax, esi
+
+    leave 
     ret
