@@ -1,14 +1,21 @@
-; seção de variáveis
-section .bss
+extern  precision
+extern  divisao, getInt16, getInt32, putInt
 
-; seção de dados
-section .data 
+%include "io.mac"
 
-; seção de códigos
-extern  divisao
-section .text
-    divisao:
-        enter   0, 0
-        
-        leave
-        ret
+SECTION .text
+divisao:
+    enter   0, 0
+
+    push esp
+    call getInt32 
+    PutLInt eax            ; N1 empilhado
+    ; call getOperand 
+    ; push eax            ; N2 empilhado
+
+    ; idiv vai vir aqui
+
+    ; call putInt ; imprime resultado
+    
+    leave
+    ret 4
