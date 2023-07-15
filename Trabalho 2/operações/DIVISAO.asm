@@ -9,7 +9,7 @@ divisao:
 
     push esp
     call getInt32 
-    PutLInt eax            ; N1 empilhado
+    ; push eax            ; N1 empilhado
     ; call getOperand 
     ; push eax            ; N2 empilhado
 
@@ -18,4 +18,4 @@ divisao:
     ; call putInt ; imprime resultado
     
     leave
-    ret 4
+    ret 
