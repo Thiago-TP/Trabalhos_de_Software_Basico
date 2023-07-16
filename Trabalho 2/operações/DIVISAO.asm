@@ -7,31 +7,51 @@ SECTION .text
 divisao:
     enter   0, 0
 
-    cmp DWORD [precision], 0
-    je  divisao16
-
-    ; TODO: terminar divisão (tratar sinal)
+    sub eax, eax
+    push eax        ; flag de N1 negativo
+    push eax        ; flag de N2 negativo
 
     call getInt32     
     push eax            ; N1 empilhado
+    cmp eax, 0
+    jl  flagN1_32       ; N1<0 ? aciona flag, faz N1 = -N1
+
+    get_N2:
     call getInt32 
     push eax            ; N2 empilhado
+    cmp eax, 0
+    jl  flagN2_32       ; N2<0 ? aciona flag, faz N2 = -N2
 
+    ; divisão é feita com os valores absolutos de N1 e N2
+    make_div32:
     sub edx, edx
-    mov DWORD eax, [ebp - 4]
-    idiv DWORD [ebp - 8]
+    mov DWORD eax, [ebp-12]
+    idiv DWORD [ebp-16]
 
-    PutLInt eax
-    nwln
-    PutLInt edx
-    nwln
+    ; eax <- resultado de interesse
+    mov eax, eax
 
-    ; call putInt ; imprime resultado
+    ; para impressão, o quociente é imbuído do sinal apropriado
+    mov DWORD esi, [ebp-4]
+    mov DWORD edi, [ebp-8]
+    xor esi, edi
+    cmp esi, 0
+    je put_div32
+
+    neg eax
+
+    put_div32:
+        push eax 
+        call putInt
     
     leave
-    ret 8
+    ret 24
 
-divisao16:
-    
-    leave
-    ret 8
+flagN1_32:
+    mov DWORD [ebp-4], 1
+    neg DWORD [ebp-12]
+    jmp get_N2
+flagN2_32:
+    mov DWORD [ebp-8], 1
+    neg DWORD [ebp-16]
+    jmp make_div32

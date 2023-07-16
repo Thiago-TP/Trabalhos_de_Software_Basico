@@ -225,9 +225,65 @@ getString:
     ret 
 
 putInt:
-    enter 0, 0
+    enter 20, 0
+
+    mov ecx, ebp 
+    sub ecx, 4          ; ecx = endereço do espaço reservado para o caracter
+
+    sub esi, esi        ; índice i do dígito
+
+    cmp DWORD [ebp + 8], 0
+    jge while_putChar
+
+    ; imprime sinal negativo se o inteiro for negativo
+    mov eax, 4
+    mov ebx, 1
+    mov BYTE [ecx], '-'
+    mov edx, 1
+    int 0x80 
+
+    ; toma o valor absoluto do número
+    neg DWORD [ebp + 8]
+
+    ; loop coloca caracter do i-ésimo dígito no endereço ecx + i
+    while_putChar:
+        ; eax = num//10, edx = num%10 
+        sub edx, edx
+        mov eax, DWORD [ebp + 8]
+        mov ebx, 10
+        idiv ebx             
+
+        ; PutLInt edx
+        ; nwln
+        add dl, '0'        ; dl = (char) dígito i
+        mov dh, 0
+        mov [ebp-4 + esi], dl ; str[i] = (char) dígito i
+
+        mov DWORD [ebp + 8], eax ; num = num//10
+        cmp DWORD [ebp + 8], 0 ; sem mais dígito, para o programa
+        je end_while_putChar
+
+        mov [ebp-4 + esi - 1], dl ; str[i+1] = str[i] (para não imprimir ao contrário)    
+        dec esi             ; ecx = endereço do próximo caracter   
+
+        jmp while_putChar
+
+    end_while_putChar:
+    dec esi
+    mov BYTE [ebp-4 + esi], 0   ; termina a string com 0
+
+    ; imprime valor absoluto do número
+    ; TODO: percorrer a pilha imprimindo os chars
+    ; mov eax, 4
+    ; mov ebx, 1
+    ; mov ecx, ebp 
+    ; sub ecx, 4
+    ; neg esi 
+    ; mov edx, esi
+    ; int 0x80
+
     leave 
-    ret
+    ret 20
 
 ; "A de ler números deve ter duas versões: 16 e 32 bits."
 getInt32:
