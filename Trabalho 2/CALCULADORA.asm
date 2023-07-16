@@ -35,6 +35,9 @@ SECTION .data
                 db  "- 7: SAIR",            10
     menu_size   equ $-menu
 
+    OF_warning      db  "OCORREU OVERFLOW", 10
+    OF_warning_size db  $-OF_warning
+
     name_size   dd 0
 
 SECTION .bss
@@ -52,7 +55,6 @@ _start:
     while_true:
         call getOperation
         call runOperation
-        PutLInt -1
     jmp while_true
 
 ; "A função principal e funções de entrada e saída de dados 
@@ -115,7 +117,7 @@ getOperation:
     push menu
     call putString 
 
-    push operation
+    ; push operation
     call getInt32
     mov  [operation], eax
 
@@ -158,9 +160,9 @@ runOperation:
     run_exp:    call exponenciacao
                 jmp  end_run
     run_mod:    call mod
+                jmp  end_run
 
     end_run:
-    ; PutLInt -1    TODO: CONSERTAR PROBLEMA NO RETORNO DESTA FUNÇÃO
     leave
     ret
 
@@ -233,7 +235,8 @@ getInt32:
 
     sub esi, esi        ; esi = inteiro convertido
     sub edi, edi        ; edi = flag de negativo
-    mov ecx, [ebp + 8]  ; ecx = endereço do espaço reservado para o número
+    mov ecx, ebp 
+    sub ecx, 4          ; ecx = endereço do espaço reservado para o número
     while_getChar32:
         mov eax, 3
         mov ebx, 0
@@ -277,7 +280,8 @@ getInt16:
 
     sub esi, esi        ; esi = inteiro convertido
     sub edi, edi        ; edi = flag de negativo
-    mov ecx, [ebp + 8]  ; ecx = endereço do espaço reservado para o número
+    mov ecx, ebp 
+    sub ecx, 4          ; ecx = endereço do espaço reservado para o número
     while_getChar16:
         mov eax, 3
         mov ebx, 0
