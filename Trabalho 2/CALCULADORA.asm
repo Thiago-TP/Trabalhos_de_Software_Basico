@@ -65,6 +65,8 @@ _start:
 ; Para isso deve estar no arquivo README as instruções de compilar e ligar.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 global  precision
+global  OF_warning,OF_warning_size
+global  end_program
 extern  putString, getInt16, getInt32, putInt
 extern  soma, subtracao, multiplicacao, divisao, exponenciacao, mod
  
