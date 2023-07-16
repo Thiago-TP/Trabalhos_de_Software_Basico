@@ -1,72 +1,39 @@
-; seção de variáveis
-section .bss
+extern  precision
+extern  soma, getInt16, getInt32, putInt
 
-; seção de dados
-section .data 
+%include "io.mac"
 
-; seção de códigos
-extern  soma
-section .text
-    soma:
-        push eax
-        enter   0, 0
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    
-    ; Condições de soma
+SECTION .text
+soma:
+    enter   0, 0
 
-        ; Se N2 menor que zero pula N2_neg
-        cmp DWORD [ebp+8],0
-        jl N2_neg
+    ;DECISÃO DE PRECISÃO
+    cmp DWORD [precision],1
+    jne soma16
 
-        ; Se N1 menor que zero dado que N2 é positivo pula N2_pos_N1_neg
-        cmp DWORD [ebp+12],0
-        jmp N2_pos_N1_neg
+    ;SOMA32
+    call getInt32     
+    push eax                ; N1 empilhado        
+    call getInt32     
+    push eax                ; N2 empilhado
 
-        ; Se ambos forem positivos
-        jmp Dois_pos
+    mov eax, DWORD [ebp-4]  ; eax = N1 
+    add eax, DWORD [ebp-8]  ; eax = eax + N2 == N1 + N2
 
-        N2_neg:
-            ; Se N1 menor que zero dado que N2 é negativo pula Dois_neg
-            cmp DWORD [ebp+12],0
-            jl Dois_neg
+    PutLInt eax
 
-            ; Se N1 positivo dado que N2 é negativo pula N1_pos_N2_neg:
-            jmp N1_pos_N2_neg
-        
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    
-    ; Somas possíveis
+    leave
+    ret 4
 
-        ; Soma sem sinal
-        Dois_pos:
-            mov eax, [ebp+8]        ; eax = N2
-            add eax, [ebp+12]       ; eax = eax + N1 <- N2 +N1
-            jmp fim_soma
 
-        ; Somas com sinal
-        N1_pos_N2_neg:
-            neg DWORD [ebp+8]             ; N2 = -N2, torna N2 positivo pra subtrair posteriormente
-            mov eax, [ebp+12]       ; eax = N1
-            sub eax, [ebp+8]        ; eax = eax - N2 <- N1 - N2
-            jmp fim_soma
+    soma16:
+        call getInt16     
+        push eax                ; N1 empilhado        
+        call getInt16     
+        push eax                ; N2 empilhado
 
-        N2_pos_N1_neg:
-            neg DWORD [ebp+12]            ; N1 = -N1, torna N1 positivo pra subtrair posteriormente
-            mov eax, [ebp+8]        ; eax = N2
-            sub eax, [ebp+12]       ; eax = eax - N1 <- N2 - N1
-            jmp fim_soma
+        mov ax, WORD [ebp-4]  ; eax = N1 
+        add ax, WORD [ebp-8]  ; eax = eax + N2 == N1 + N2        
 
-        Dois_neg:
-            neg DWORD [ebp+8]             ; N2 = -N2, torna N2 positivo pra somar posteriormente
-            neg DWORD [ebp+12]            ; N1 = -N1, torna N1 positivo pra somar posteriormente
-            mov eax, [ebp+8]        ; eax = N2
-            add eax, [ebp+12]       ; eax = eax + N1 <- N2 +N1
-            neg eax                 ; eax = -eax, sinal da resposta
-            jmp fim_soma
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-        fim_soma:
-            leave
-            pop eax
-            ret
+        leave
+        ret 4
