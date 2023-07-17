@@ -2,7 +2,6 @@ extern  precision
 extern type_N1, type_N1_size, type_N2, type_N2_size, result_msg, result_msg_size
 extern  soma, getInt16, getInt32, putInt, putString
 
-%include "io.mac"
 
 SECTION .text
 soma:
@@ -30,12 +29,18 @@ soma:
 
     call getInt32     
     push eax                ; N2 empilhado
-
     mov eax, DWORD [ebp-4]  ; eax = N1 
     add eax, DWORD [ebp-8]  ; eax = eax + N2 = N1 + N2
 
     push eax
-    call putInt
+    
+    push result_msg_size
+    push result_msg
+    call putString
+    pop eax 
+    pop eax
+
+    call putInt  
 
     leave
     ret 12
@@ -63,6 +68,7 @@ soma:
         mov ax, WORD [ebp-4]  ; eax = N1 
         add ax, WORD [ebp-8]  ; eax = eax + N2 = N1 + N2 
 
+        cwde
         push eax
 
         push result_msg_size
