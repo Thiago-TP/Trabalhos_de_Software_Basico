@@ -24,7 +24,7 @@ SECTION .data
     type_precision      db  "Vai trabalhar com 16 ou 32 bits? (digite 0 para 16, e 1 para 32): ", 0
     type_precision_size equ $-type_precision
 
-    menu        db  10
+    menu        db  10, 10
                 db  "ESCOLHA UMA OPÇÃO:",   10 
                 db  "- 1: SOMA",            10
                 db  "- 2: SUBTRACAO",       10
@@ -34,6 +34,18 @@ SECTION .data
                 db  "- 6: MOD",             10
                 db  "- 7: SAIR",            10
     menu_size   equ $-menu
+
+    show_32         db "(Precisão: 32)", 10 
+    show_32_size    equ $-show_32
+    show_16         db "(Precisão: 16)", 10 
+    show_16_size    equ $-show_16
+
+    type_N1         db "Digite N1: ", 0
+    type_N1_size    equ $-type_N1
+    type_N2         db "Digite N2: ", 0
+    type_N2_size    equ $-type_N2
+    result_msg      db "N1 op N2 = ", 0
+    result_msg_size equ $-result_msg
 
     OF_warning      db  "OCORREU OVERFLOW", 10
     OF_warning_size db  $-OF_warning
@@ -65,9 +77,9 @@ _start:
 ; Para isso deve estar no arquivo README as instruções de compilar e ligar.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 global  precision
-global  OF_warning,OF_warning_size
-global  end_program
-extern  putString, getInt16, getInt32, putInt
+global  OF_warning, OF_warning_size, type_N1, type_N1_size, type_N2, type_N2_size, result_msg, result_msg_size
+global  end_program ; end program não é função
+extern  putString, getInt16, getInt32, putInt, putString
 extern  soma, subtracao, multiplicacao, divisao, exponenciacao, mod
  
 getName:
@@ -119,12 +131,25 @@ getOperation:
     push menu
     call putString 
 
-    ; push operation
+    cmp DWORD [precision], 0 
+    je  is16bit
+
+    push show_32_size
+    push show_32
+    jmp end_getOperation
+
+    is16bit:
+    push show_16_size
+    push show_16
+
+    end_getOperation:
+    call putString 
+
     call getInt32
     mov  [operation], eax
 
     leave
-    ret 12
+    ret 16
 
 ; "Ao receber a opção do menu, que pode ser qualquer número entre 1 a 6, 
 ; deve ir para uma função que vai executar a operação requerida. 

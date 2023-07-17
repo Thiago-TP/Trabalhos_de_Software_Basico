@@ -1,6 +1,7 @@
 extern  precision
-extern  multiplicacao, getInt16, getInt32, putInt
-extern  OF_warning, OF_warning_size, putString, end_program
+extern type_N1, type_N1_size, type_N2, type_N2_size, result_msg, result_msg_size
+extern  multiplicacao, getInt16, getInt32, putInt, putString
+extern  OF_warning, OF_warning_size
 
 %include "io.mac"
 
@@ -13,8 +14,21 @@ multiplicacao:
     jne multiplicacao16
 
     ;MULTIPLICAÇÃO32
+    push type_N1_size
+    push type_N1
+    call putString
+    pop eax 
+    pop eax
+
     call getInt32     
-    push eax                ; N1 empilhado        
+    push eax                ; N1 empilhado
+
+    push type_N2_size
+    push type_N2
+    call putString
+    pop eax 
+    pop eax
+
     call getInt32     
     push eax                ; N2 empilhado
 
@@ -28,17 +42,38 @@ multiplicacao:
     cmp edx,0
     je fim_mul32
 
-    call Mul_Overflow
+    jmp Mul_Overflow
 
     fim_mul32:
-        PutLInt eax
+        push eax
+
+        push result_msg_size
+        push result_msg
+        call putString
+        pop eax 
+        pop eax
+
+        call putInt
         leave
-        ret 4
+        ret 12
 
 
     multiplicacao16:
+        push type_N1_size
+        push type_N1
+        call putString
+        pop eax 
+        pop eax
+
         call getInt16     
-        push eax                ; N1 empilhado        
+        push eax                ; N1 empilhado 
+
+        push type_N2_size
+        push type_N2
+        call putString
+        pop eax 
+        pop eax
+
         call getInt16     
         push eax                ; N2 empilhado
 
@@ -55,26 +90,33 @@ multiplicacao:
         cmp dx,0
         je fim_mul16
 
-        call Mul_Overflow
+        jmp Mul_Overflow
 
         fim_mul16:
-        PutLInt eax
+        push eax
+
+        push result_msg_size
+        push result_msg
+        call putString
+        pop eax 
+        pop eax
+
+        call putInt 
         leave
-        ret 4
+        ret 12
     
 
-    Mul_Overflow:
-        enter 0,0
+Mul_Overflow:
+    push OF_warning_size
+    push OF_warning
 
-        push OF_warning_size
-        push OF_warning
+    call putString
 
-        call putString
+    ; essas linhas davam erro
+    ; pop [OF_warning]
+    ; pop [OF_warning_size]
 
-        ; essas linhas davam erro
-        ; pop [OF_warning]
-        ; pop [OF_warning_size]
-
-        leave
-        call end_program 
+    mov eax, 1
+    mov ebx, 0
+    int 0x80
 

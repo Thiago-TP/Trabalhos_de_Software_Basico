@@ -1,5 +1,6 @@
 extern  precision
-extern  mod, getInt16, getInt32, putInt
+extern type_N1, type_N1_size, type_N2, type_N2_size, result_msg, result_msg_size
+extern  mod, getInt16, getInt32, putInt, putString
 
 %include "io.mac"
 
@@ -16,12 +17,24 @@ mod32:
     push eax        ; flag de N1 negativo
     push eax        ; flag de N2 negativo
 
+    push type_N1_size
+    push type_N1
+    call putString
+    pop eax 
+    pop eax
+
     call getInt32     
     push eax            ; N1 empilhado
     cmp eax, 0
     jl  negN1_32       ; N1<0 ? aciona flag, faz N1 = -N1
 
     get_N2_32_mod:
+    push type_N2_size
+    push type_N2
+    call putString
+    pop eax 
+    pop eax
+
     call getInt32 
     push eax            ; N2 empilhado
     cmp eax, 0
@@ -51,6 +64,13 @@ mod32:
 
     put_mod32:
         push eax 
+
+        push result_msg_size
+        push result_msg
+        call putString
+        pop eax 
+        pop eax
+
         call putInt
     
     leave
@@ -76,12 +96,24 @@ mod16:
     push ax        ; flag de N1 negativo
     push ax        ; flag de N2 negativo
 
+    push type_N1_size
+    push type_N1
+    call putString
+    pop eax 
+    pop eax
+
     call getInt16     
     push ax            ; N1 empilhado
     cmp ax, 0
     jl  negN1_16       ; N1<0 ? aciona flag, faz N1 = -N1
 
     get_N2_16_mod:
+    push type_N2_size
+    push type_N2
+    call putString
+    pop eax 
+    pop eax
+
     call getInt16 
     push ax            ; N2 empilhado
     cmp ax, 0
@@ -112,6 +144,13 @@ mod16:
     put_mod16:
         movsx eax, ax
         push eax 
+
+        push result_msg_size
+        push result_msg
+        call putString
+        pop eax 
+        pop eax
+
         call putInt
     
     leave

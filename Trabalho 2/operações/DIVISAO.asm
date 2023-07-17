@@ -1,5 +1,6 @@
 extern  precision
-extern  divisao, getInt16, getInt32, putInt
+extern type_N1, type_N1_size, type_N2, type_N2_size, result_msg, result_msg_size
+extern  divisao, getInt16, getInt32, putInt, putString
 
 %include "io.mac"
 
@@ -16,12 +17,24 @@ divisao32:
     push eax        ; flag de N1 negativo
     push eax        ; flag de N2 negativo
 
+    push type_N1_size
+    push type_N1
+    call putString
+    pop eax 
+    pop eax
+
     call getInt32     
     push eax            ; N1 empilhado
     cmp eax, 0
     jl  flagN1_32       ; N1<0 ? aciona flag, faz N1 = -N1
 
-    get_N2_32:
+    get_N2_32_div:
+    push type_N2_size
+    push type_N2
+    call putString
+    pop eax 
+    pop eax
+
     call getInt32 
     push eax            ; N2 empilhado
     cmp eax, 0
@@ -46,6 +59,13 @@ divisao32:
 
     put_div32:
         push eax 
+
+        push result_msg_size
+        push result_msg
+        call putString
+        pop eax 
+        pop eax
+        
         call putInt
     
     leave
@@ -54,7 +74,7 @@ divisao32:
 flagN1_32:
     mov DWORD [ebp-4], 1
     neg DWORD [ebp-12]
-    jmp get_N2_32
+    jmp get_N2_32_div
 flagN2_32:
     mov DWORD [ebp-8], 1
     neg DWORD [ebp-16]
@@ -66,12 +86,24 @@ divisao16:
     push ax        ; flag de N1 negativo
     push ax        ; flag de N2 negativo
 
+    push type_N1_size
+    push type_N1
+    call putString
+    pop eax 
+    pop eax
+
     call getInt16     
     push ax            ; N1 empilhado
     cmp ax, 0
     jl  flagN1_16       ; N1<0 ? aciona flag, faz N1 = -N1
 
-    get_N2_16:
+    get_N2_16_div:
+    push type_N2_size
+    push type_N2
+    call putString
+    pop eax 
+    pop eax
+
     call getInt16 
     push ax            ; N2 empilhado
     cmp ax, 0
@@ -97,6 +129,13 @@ divisao16:
     put_div16:
         movsx eax, ax
         push eax 
+
+        push result_msg_size
+        push result_msg
+        call putString
+        pop eax 
+        pop eax
+
         call putInt
     
     leave
@@ -105,7 +144,7 @@ divisao16:
 flagN1_16:
     mov WORD [ebp-2], 1
     neg WORD [ebp-6]
-    jmp get_N2_16
+    jmp get_N2_16_div
 flagN2_16:
     mov WORD [ebp-4], 1
     neg WORD [ebp-8]
