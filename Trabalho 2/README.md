@@ -6,7 +6,7 @@ Etapas para gerar o executável do zero:
     
 2. Crie os arquivos objeto de cada módulo através dos comandos (copie e cole o conjunto na linha de comando)
 	```
-    nasm -f elf novaCALCULADORA.asm -o CALCULADORA.o 
+    nasm -f elf CALCULADORA.asm -o CALCULADORA.o 
     nasm -f elf operações/SOMA.asm  -o operações/SOMA.o
     nasm -f elf operações/SUBTRACAO.asm -o operações/SUBTRACAO.o
     nasm -f elf operações/MULTIPLICACAO.asm	-o operações/MULTIPLICACAO.o
@@ -44,7 +44,7 @@ nasm -f elf operações/MULTIPLICACAO.asm	-o operações/MULTIPLICACAO.o
 nasm -f elf operações/DIVISAO.asm   -o operações/DIVISAO.o
 nasm -f elf operações/EXPONENCIACAO.asm -o operações/EXPONENCIACAO.o
 nasm -f elf operações/MOD.asm   -o operações/MOD.o
-ld -m elf_i386 -o CALCULADORA CALCULADORA.o io.o    \
+ld -m elf_i386 -o CALCULADORA CALCULADORA.o    \
 operações/SOMA.o    \
 operações/SUBTRACAO.o   \
 operações/MULTIPLICACAO.o   \
