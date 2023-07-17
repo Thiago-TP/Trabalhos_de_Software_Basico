@@ -48,7 +48,7 @@ SECTION .data
     result_msg_size equ $-result_msg
 
     OF_warning      db  "OCORREU OVERFLOW", 10
-    OF_warning_size db  $-OF_warning
+    OF_warning_size equ  $-OF_warning
 
     name_size   dd 0
 
@@ -78,7 +78,6 @@ _start:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 global  precision
 global  OF_warning, OF_warning_size, type_N1, type_N1_size, type_N2, type_N2_size, result_msg, result_msg_size
-global  end_program ; end program não é função
 extern  putString, getInt16, getInt32, putInt, putString
 extern  soma, subtracao, multiplicacao, divisao, exponenciacao, mod
  
