@@ -71,8 +71,9 @@ multiplicacao:
 
         call putString
 
-        pop [OF_warning]
-        pop [OF_warning_size]
+        ; essas linhas davam erro
+        ; pop [OF_warning]
+        ; pop [OF_warning_size]
 
         leave
         call end_program 

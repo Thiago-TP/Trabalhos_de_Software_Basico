@@ -226,75 +226,89 @@ getString:
     leave 
     ret 
 
+;   Recebe um inteiro da pilha, converte-o para string,
+;   e o imprime na tela. A conversão é feita dígito a dígito,
+;   salvando na pilha os bytes dos caracteres resultantes.
+;   A impressão é feita iterando sobre a pilha.
 putInt:
-    enter 20, 0
+    enter 12, 0 ; são impressos no máximo 12 bytes (10 dígitos + sinal + \0)
 
+    ; preparação do primeiro loop
+    mov DWORD esi, [ebp+8]  ; esi = inteiro a ser convertido = num
+    sub edi, edi            ; edi = número de dígitos
+    
     mov ecx, ebp 
-    sub ecx, 4          ; ecx = endereço do espaço reservado para o caracter
+    sub ecx, 4              ; ecx = ebp-4 = endereço do primeiro byte 
+    mov BYTE [ecx], 0
 
-    sub esi, esi        ; índice i do dígito
+    ; se o número é negativo, toma-se o módulo
+    cmp esi, 0 
+    jge while_digit 
 
-    cmp DWORD [ebp + 8], 0
-    jge while_putChar
+    neg esi
+    
+    ; loop para colocar os bytes na pilha
+    while_digit:
+        ; prepara endereço pro próximo char
+        dec ecx 
 
-    ; imprime sinal negativo se o inteiro for negativo
-    mov eax, 4
-    mov ebx, 1
+        ; atualiza tamanho da string
+        inc edi
+
+        ; dígito = num % 10
+        sub edx, edx    ; edx=0 para divisão
+        mov eax, esi 
+        mov ebx, 10 
+        idiv ebx        ; num % 10 em edx (dl)
+
+        ; (char) dígito = dígito + '0'
+        add edx, '0'
+
+        ; guarda char na pilha
+        mov [ecx], dl
+
+        ; num = num//10
+        mov esi, eax    ; eax = quociente do idiv
+
+        ; num//10 = 0 ? não tem mais número
+        cmp esi, 0 
+        jne while_digit
+
+    ; imprime sinal se necessário
+    mov ebx, 1  ; std file descriptor
+    mov edx, 1  ; será impresso apenas um byte
+
+    cmp DWORD [ebp+8], 0
+    jge for_putDigit 
+
+    inc edi     ; string ganhou um caracter, o sinal
+    dec ecx 
     mov BYTE [ecx], '-'
-    mov edx, 1
-    int 0x80 
 
-    ; toma o valor absoluto do número
-    neg DWORD [ebp + 8]
+    ; imprime string de final em ecx e início em ebp-4
+    for_putDigit:
+        cmp edi, 0
+        je end_for_putDigit
+        mov eax, 4
+        int 0x80
 
-    ; loop coloca caracter do i-ésimo dígito no endereço ecx + i
-    while_putChar:
-        ; eax = num//10, edx = num%10 
-        sub edx, edx
-        mov eax, DWORD [ebp + 8]
-        mov ebx, 10
-        idiv ebx             
+        inc ecx 
+        dec edi
+        jmp for_putDigit
 
-        ; PutLInt edx
-        ; nwln
-        add dl, '0'        ; dl = (char) dígito i
-        mov dh, 0
-        mov [ebp-4 + esi], dl ; str[i] = (char) dígito i
-
-        mov DWORD [ebp + 8], eax ; num = num//10
-        cmp DWORD [ebp + 8], 0 ; sem mais dígito, para o programa
-        je end_while_putChar
-
-        mov [ebp-4 + esi - 1], dl ; str[i+1] = str[i] (para não imprimir ao contrário)    
-        dec esi             ; ecx = endereço do próximo caracter   
-
-        jmp while_putChar
-
-    end_while_putChar:
-    dec esi
-    mov BYTE [ebp-4 + esi], 0   ; termina a string com 0
-
-    ; imprime valor absoluto do número
-    ; TODO: percorrer a pilha imprimindo os chars
-    ; mov eax, 4
-    ; mov ebx, 1
-    ; mov ecx, ebp 
-    ; sub ecx, 4
-    ; neg esi 
-    ; mov edx, esi
-    ; int 0x80
+    end_for_putDigit:
 
     leave 
-    ret 20
+    ret
 
 ; "A de ler números deve ter duas versões: 16 e 32 bits."
 getInt32:
-    enter 0, 0
+    enter 1, 0
 
     sub esi, esi        ; esi = inteiro convertido
     sub edi, edi        ; edi = flag de negativo
     mov ecx, ebp 
-    sub ecx, 4          ; ecx = endereço do espaço reservado para o número
+    sub ecx, 1          ; ecx = endereço do espaço reservado para o número
     while_getChar32:
         mov eax, 3
         mov ebx, 0
@@ -334,12 +348,12 @@ getInt32:
 
 ; "A de ler números deve ter duas versões: 16 e 32 bits."
 getInt16:
-    enter 0, 0
+    enter 1, 0
 
-    sub esi, esi        ; esi = inteiro convertido
-    sub edi, edi        ; edi = flag de negativo
+    sub si, si        ; esi = inteiro convertido
+    sub di, di        ; edi = flag de negativo
     mov ecx, ebp 
-    sub ecx, 4          ; ecx = endereço do espaço reservado para o número
+    sub ecx, 1          ; ecx = endereço do espaço reservado para o número
     while_getChar16:
         mov eax, 3
         mov ebx, 0
@@ -355,24 +369,25 @@ getInt16:
         je  isNegative16
 
         sub al, '0'     ; al = dígito - '0' = (int) dígito
-        mov ebx, esi 
-        shl ebx, 1      ; ebx = 2*acc
-        shl esi, 3      ; esi = 8*acc
-        add esi, ebx    ; esi = 10*acc
+        mov bx, si 
+        shl bx, 1      ; bx = 2*acc
+        shl si, 3      ; si = 8*acc
+        add si, bx    ; si = 10*acc
 
-        add esi, eax    ; esi = 10*acc + (int) dígito
+        add si, ax    ; si = 10*acc + (int) dígito
         jmp while_getChar16
 
         isNegative16:
-        mov edi, 1
+        mov di, 1
         jmp while_getChar16
 
     end_while_getChar16:
-    cmp edi, 0
+    cmp di, 0
     je isPositive16
-    neg esi    
+    neg si    
     isPositive16:
-    mov eax, esi
+    mov ax, si
+    movsx eax, ax
 
     leave 
     ret
