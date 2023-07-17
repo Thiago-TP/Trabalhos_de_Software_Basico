@@ -2,7 +2,6 @@ extern  precision
 extern type_N1, type_N1_size, type_N2, type_N2_size, result_msg, result_msg_size
 extern  subtracao, getInt16, getInt32, putInt, putString
 
-%include "io.mac"
 
 SECTION .text
 subtracao:
@@ -63,6 +62,7 @@ subtracao:
         mov ax, WORD [ebp-4]  ; eax = N1 
         sub ax, WORD [ebp-8]  ; eax = eax - N2 = N1 - N2  
 
+        cwde
         push eax
 
         push result_msg_size
