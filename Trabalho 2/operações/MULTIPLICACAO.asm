@@ -3,7 +3,6 @@ extern type_N1, type_N1_size, type_N2, type_N2_size, result_msg, result_msg_size
 extern  multiplicacao, getInt16, getInt32, putInt, putString
 extern  OF_warning, OF_warning_size
 
-%include "io.mac"
 
 SECTION .text
 multiplicacao:
@@ -93,6 +92,7 @@ multiplicacao:
         jmp Mul_Overflow
 
         fim_mul16:
+        cwde
         push eax
 
         push result_msg_size
@@ -111,10 +111,6 @@ Mul_Overflow:
     push OF_warning
 
     call putString
-
-    ; essas linhas davam erro
-    ; pop [OF_warning]
-    ; pop [OF_warning_size]
 
     mov eax, 1
     mov ebx, 0
