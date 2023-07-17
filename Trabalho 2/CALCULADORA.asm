@@ -24,15 +24,15 @@ SECTION .data
     type_precision      db  "Vai trabalhar com 16 ou 32 bits? (digite 0 para 16, e 1 para 32): ", 0
     type_precision_size equ $-type_precision
 
-    menu        db  10, 10
-                db  "ESCOLHA UMA OPÇÃO:",   10 
-                db  "- 1: SOMA",            10
-                db  "- 2: SUBTRACAO",       10
-                db  "- 3: MULTIPLICACAO",   10
-                db  "- 4: DIVISAO",         10
-                db  "- 5: EXPONENCIACAO",   10
-                db  "- 6: MOD",             10
-                db  "- 7: SAIR",            10
+    menu        db  10
+                db  "Escolha uma opção:",   10 
+                db  "- 1: Soma",            10
+                db  "- 2: Subtração",       10
+                db  "- 3: Multiplicação",   10
+                db  "- 4: Divisão",         10
+                db  "- 5: Exponenciação",   10
+                db  "- 6: Mod",           10
+                db  "- 7: Sair",            10
     menu_size   equ $-menu
 
     show_32         db "(Precisão: 32)", 10 
@@ -47,6 +47,9 @@ SECTION .data
     result_msg      db "N1 op N2 = ", 0
     result_msg_size equ $-result_msg
 
+    calc_again      db 10, 10, "Aperte ENTER para fazer uma nova conta.", 0
+    calc_again_size equ $-calc_again
+
     OF_warning      db  "OCORREU OVERFLOW", 10
     OF_warning_size equ  $-OF_warning
 
@@ -57,16 +60,19 @@ SECTION .bss
     precision       resd    1
     operation       resd    1
 
-%include "io.mac" ; SOMENTE PARA DEBUG, DELETAR NA VERSÃO FINAL
-
 SECTION .text
 global _start 
+; O programa principal NÃO deve processar dados nem 
+; fazer nenhuma operação de entrada e saída de dados diretamente.
+; As funções de entrada e saída de dados podem ser chamadas 
+; pelo programa principal e outras funções.
 _start:
     call getName
     call getPrecision
     while_true:
         call getOperation
         call runOperation
+        call dumbKeypoll
     jmp while_true
 
 ; "A função principal e funções de entrada e saída de dados 
@@ -75,7 +81,7 @@ _start:
 ; (ex.: SOMA.ASM, DIVISAO.ASM, etc.) 
 ; o programa deve ser compilado e ligado para gerar um único executável. 
 ; Para isso deve estar no arquivo README as instruções de compilar e ligar.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 global  precision
 global  OF_warning, OF_warning_size, type_N1, type_N1_size, type_N2, type_N2_size, result_msg, result_msg_size
 extern  putString, getInt16, getInt32, putInt, putString
@@ -190,12 +196,27 @@ runOperation:
 
     end_run:
     leave
-    ret
+    ret 
 
     end_program:
     mov eax, 1 
     mov ebx, 0
     int 0x80
+
+dumbKeypoll:
+    enter 0, 0
+
+    push calc_again_size
+    push calc_again    
+    call putString
+
+    mov eax, ebp 
+    sub eax, 12
+    push eax
+    call getString
+
+    leave 
+    ret 12
 
 ; "Todas as mensagens de TEXTO devem ser mostradas 
 ; usando uma ÚNICA função de saída de dados de string. 

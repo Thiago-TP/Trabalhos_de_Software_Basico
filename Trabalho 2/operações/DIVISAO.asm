@@ -2,8 +2,6 @@ extern  precision
 extern type_N1, type_N1_size, type_N2, type_N2_size, result_msg, result_msg_size
 extern  divisao, getInt16, getInt32, putInt, putString
 
-%include "io.mac"
-
 SECTION .text
 divisao:
     enter   0, 0
