@@ -3,7 +3,6 @@ extern type_N1, type_N1_size, type_N2, type_N2_size, result_msg, result_msg_size
 extern exponenciacao, getInt16, getInt32, putInt, putString
 extern OF_warning, OF_warning_size, putString, end_program
 
-
 SECTION .text
 exponenciacao:
     enter 0, 0
@@ -76,8 +75,7 @@ exponenciacao:
         cmp cx, 1
         jg exp16
 
-        ;Analisa se edx foi somente extensão de sinal ou overflow
-        jo Exp_Overflow
+        jo Exp_Overflow        ;Analisa se edx foi somente extensão de sinal ou overflow
 
     fim_exp16:
         cwde
