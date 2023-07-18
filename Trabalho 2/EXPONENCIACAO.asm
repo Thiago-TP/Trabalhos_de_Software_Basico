@@ -45,13 +45,11 @@ exponenciacao:
 
     ;EXPONENCIAÇÃO32
     exp32:
-        imul ebx                ; edx.eax = eax*ebx == N1*N1
+        imul ebx               ; edx.eax = eax*ebx == N1*N1
+        jo Exp_Overflow        ;Analisa se edx foi somente extensão de sinal ou overflow
         dec ecx
         cmp ecx, 1
         jg exp32
-
-        ;Analisa se edx foi somente extensão de sinal ou overflow
-        jo Exp_Overflow
 
     exp_zero:
         mov eax, 1
@@ -71,11 +69,10 @@ exponenciacao:
     
     exp16:
         imul bx                ;dx.ax = ax*bx == N1*N1
+        jo Exp_Overflow        ;Analisa se edx foi somente extensão de sinal ou overflow
         dec cx
         cmp cx, 1
         jg exp16
-
-        jo Exp_Overflow        ;Analisa se edx foi somente extensão de sinal ou overflow
 
     fim_exp16:
         cwde
