@@ -45,7 +45,6 @@ subtracao:
     leave
     ret 12
 
-
 subtracao16:
     push type_N1_size
     push type_N1
