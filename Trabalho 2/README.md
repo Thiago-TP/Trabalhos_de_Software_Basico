@@ -18,12 +18,12 @@ Etapas para gerar o executável do zero:
 	
 3.  Ligue o arquivo objeto principal através do comando (copie e cole na linha de comando)
 	```
-    ld -m elf_i386 -o CALCULADORA CALCULADORA.o io.o \
-    SOMA.o                                           \
-    SUBTRACAO.o                                      \
-    MULTIPLICACAO.o                                  \
-    DIVISAO.o                                        \
-    EXPONENCIACAO.o                                  \
+    ld -m elf_i386 -o CALCULADORA CALCULADORA.o \
+    SOMA.o                                      \
+    SUBTRACAO.o                                 \
+    MULTIPLICACAO.o                             \
+    DIVISAO.o                                   \
+    EXPONENCIACAO.o                             \
     MOD.o	
 	```
 	Se tudo der certo, será criado arquivo executável chamado `CALCULADORA`.
@@ -44,12 +44,12 @@ nasm -f elf MULTIPLICACAO.asm -o MULTIPLICACAO.o
 nasm -f elf DIVISAO.asm       -o DIVISAO.o
 nasm -f elf EXPONENCIACAO.asm -o EXPONENCIACAO.o
 nasm -f elf MOD.asm           -o MOD.o
-ld -m elf_i386 -o CALCULADORA CALCULADORA.o io.o \
-SOMA.o                                           \
-SUBTRACAO.o                                      \
-MULTIPLICACAO.o                                  \
-DIVISAO.o                                        \
-EXPONENCIACAO.o                                  \
+ld -m elf_i386 -o CALCULADORA CALCULADORA.o \
+SOMA.o                                      \
+SUBTRACAO.o                                 \
+MULTIPLICACAO.o                             \
+DIVISAO.o                                   \
+EXPONENCIACAO.o                             \
 MOD.o							
 ./CALCULADORA
 ```
