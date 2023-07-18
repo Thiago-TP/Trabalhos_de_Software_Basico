@@ -1,108 +1,96 @@
-extern  precision
+extern precision
 extern type_N1, type_N1_size, type_N2, type_N2_size, result_msg, result_msg_size
-extern  multiplicacao, getInt16, getInt32, putInt, putString
-extern  OF_warning, OF_warning_size
+extern multiplicacao, getInt16, getInt32, putInt, putString
+extern OF_warning, OF_warning_size
 
 SECTION .text
 multiplicacao:
-    enter   0, 0
+    enter 0, 0
 
     ;DECISÃO DE PRECISÃO
-    cmp DWORD [precision],1
-    jne multiplicacao16
+    cmp  DWORD [precision], 1
+    jne  multiplicacao16
 
     ;MULTIPLICAÇÃO32
     push type_N1_size
     push type_N1
     call putString
-    pop eax 
-    pop eax
+    pop  eax 
+    pop  eax
 
     call getInt32     
-    push eax                ; N1 empilhado
+    push eax                    ; N1 empilhado
 
     push type_N2_size
     push type_N2
     call putString
-    pop eax 
-    pop eax
+    pop  eax 
+    pop  eax
 
     call getInt32     
-    push eax                ; N2 empilhado
+    push eax                    ; N2 empilhado
 
-    mov eax, DWORD [ebp-4]  ; edx = N1 
-    mov edx, DWORD [ebp-8]  ; eax = N2
-    imul edx                ; edx.eax = eax*edx == N1*N2
+    mov  eax, DWORD [ebp-4]     ; edx = N1 
+    mov  edx, DWORD [ebp-8]     ; eax = N2
+    imul edx                    ; edx.eax = eax*edx = N1*N2
 
     ;Analisa se edx foi somente extensão de sinal ou overflow
-    cmp edx,-1
-    je fim_mul32
-    cmp edx,0
-    je fim_mul32
+    jo Mul_Overflow
 
-    jmp Mul_Overflow
+    push eax
 
-    fim_mul32:
-        push eax
+    push result_msg_size
+    push result_msg
+    call putString
+    pop  eax 
+    pop  eax
 
-        push result_msg_size
-        push result_msg
-        call putString
-        pop eax 
-        pop eax
-
-        call putInt
-        leave
-        ret 12
+    call putInt
+    leave
+    ret 12
 
 
-    multiplicacao16:
-        push type_N1_size
-        push type_N1
-        call putString
-        pop eax 
-        pop eax
+multiplicacao16:
+    push type_N1_size
+    push type_N1
+    call putString
+    pop  eax 
+    pop  eax
 
-        call getInt16     
-        push eax                ; N1 empilhado 
+    call getInt16     
+    push eax                    ; N1 empilhado 
 
-        push type_N2_size
-        push type_N2
-        call putString
-        pop eax 
-        pop eax
+    push type_N2_size
+    push type_N2
+    call putString
+    pop  eax 
+    pop  eax
 
-        call getInt16     
-        push eax                ; N2 empilhado
+    call getInt16     
+    push eax                    ; N2 empilhado
 
-        sub eax,eax             ; zera eax  
-        sub edx,edx             ; zera edx
+    sub  eax,eax                ; zera eax  
+    sub  edx,edx                ; zera edx
 
-        mov ax, WORD [ebp-4]    ; edx = N1 
-        mov dx, WORD [ebp-8]    ; eax = N2
-        imul dx                 ; dx.ax = ax*dx == N1*N2  
+    mov  ax, WORD [ebp-4]       ; edx = N1 
+    mov  dx, WORD [ebp-8]       ; eax = N2
+    imul dx                     ; dx.ax = ax*dx == N1*N2  
 
-        ;Analisa se dx foi somente extensão de sinal ou overflow
-        cmp dx,-1
-        je fim_mul16
-        cmp dx,0
-        je fim_mul16
+    ;Analisa se dx foi somente extensão de sinal ou overflow
+    jo  Mul_Overflow
 
-        jmp Mul_Overflow
+    cwde
+    push eax
 
-        fim_mul16:
-        cwde
-        push eax
+    push result_msg_size
+    push result_msg
+    call putString
+    pop  eax 
+    pop  eax
 
-        push result_msg_size
-        push result_msg
-        call putString
-        pop eax 
-        pop eax
-
-        call putInt 
-        leave
-        ret 12
+    call putInt 
+    leave
+    ret 12
     
 
 Mul_Overflow:
@@ -111,7 +99,6 @@ Mul_Overflow:
 
     call putString
 
-    mov eax, 1
-    mov ebx, 0
-    int 0x80
-
+    mov  eax, 1
+    mov  ebx, 0
+    int  0x80

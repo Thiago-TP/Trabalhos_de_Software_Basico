@@ -10,7 +10,7 @@
 ;   CALCULADORA EM ASSEMBLY NASM IA-32      ; 
 ;...........................................;
 
-; Detalhes em https://github.com/Thiago-TP/Trabalhos_de_Software_Basico.git
+;   Detalhes em https://github.com/Thiago-TP/Trabalhos_de_Software_Basico.git
 
 SECTION .data
     type_name           db  "Bem vindo. Digite seu nome: ", 0
@@ -56,16 +56,16 @@ SECTION .data
     name_size   dd 0
 
 SECTION .bss
-    name            resb    1
-    precision       resd    1
-    operation       resd    1
+    name        resb    1
+    precision   resd    1
+    operation   resd    1
 
 SECTION .text
 global _start 
-; O programa principal NÃO deve processar dados nem 
-; fazer nenhuma operação de entrada e saída de dados diretamente.
-; As funções de entrada e saída de dados podem ser chamadas 
-; pelo programa principal e outras funções.
+;   O programa principal NÃO deve processar dados nem 
+;   fazer nenhuma operação de entrada e saída de dados diretamente.
+;   As funções de entrada e saída de dados podem ser chamadas 
+;   pelo programa principal e outras funções.
 _start:
     call getName
     call getPrecision
@@ -75,17 +75,17 @@ _start:
         call dumbKeypoll
     jmp while_true
 
-; "A função principal e funções de entrada e saída de dados 
-; devem estar no mesmo arquivo CALCULADORA.ASM.
-; Porém as operações deve estar cada uma num arquivo separado
-; (ex.: SOMA.ASM, DIVISAO.ASM, etc.) 
-; o programa deve ser compilado e ligado para gerar um único executável. 
-; Para isso deve estar no arquivo README as instruções de compilar e ligar.
+;   "A função principal e funções de entrada e saída de dados 
+;   devem estar no mesmo arquivo CALCULADORA.ASM.
+;   Porém as operações deve estar cada uma num arquivo separado
+;   (ex.: SOMA.ASM, DIVISAO.ASM, etc.) 
+;   o programa deve ser compilado e ligado para gerar um único executável. 
+;   Para isso deve estar no arquivo README as instruções de compilar e ligar.
 
-global  precision
-global  OF_warning, OF_warning_size, type_N1, type_N1_size, type_N2, type_N2_size, result_msg, result_msg_size
-extern  putString, getInt16, getInt32, putInt, putString
-extern  soma, subtracao, multiplicacao, divisao, exponenciacao, mod
+global precision
+global OF_warning, OF_warning_size, type_N1, type_N1_size, type_N2, type_N2_size, result_msg, result_msg_size
+extern putString, getInt16, getInt32, putInt, putString
+extern soma, subtracao, multiplicacao, divisao, exponenciacao, mod
  
 getName:
     enter 0, 0
@@ -97,7 +97,7 @@ getName:
     push DWORD [name_size]
     push name
     call getString  
-    mov [name_size], eax
+    mov  [name_size], eax
 
     push welcome_msg1_size
     push welcome_msg1
@@ -128,7 +128,7 @@ getPrecision:
     leave
     ret 12
 
-; Para o menu a ideia é chamar a função de saída de string uma vez por linha.
+;   Para o menu a ideia é chamar a função de saída de string uma vez por linha.
 getOperation:
     enter 0, 0
 
@@ -136,12 +136,12 @@ getOperation:
     push menu
     call putString 
 
-    cmp DWORD [precision], 0 
-    je  is16bit
+    cmp  DWORD [precision], 0 
+    je   is16bit
 
     push show_32_size
     push show_32
-    jmp end_getOperation
+    jmp  end_getOperation
 
     is16bit:
     push show_16_size
@@ -156,43 +156,56 @@ getOperation:
     leave
     ret 16
 
-; "Ao receber a opção do menu, que pode ser qualquer número entre 1 a 6, 
-; deve ir para uma função que vai executar a operação requerida. 
-; Tal função deve pedir 2 números inteiros (que pode ter o sinal negativo). 
-; Deve-se assumir que são de 16 ou 32 bits de acordo com a opção digitada pelo usuário. 
-; Devem ser armazenados em variáveis locais. Deve mostrar o resultado final. 
-; Esperar o usuário digitar ENTER e novamente mostrar menu de opções. 
-; Até o usuário digitar a opção de sair."
+;   "Ao receber a opção do menu, que pode ser qualquer número entre 1 a 6, 
+;   deve ir para uma função que vai executar a operação requerida. 
+;   Tal função deve pedir 2 números inteiros (que pode ter o sinal negativo). 
+;   Deve-se assumir que são de 16 ou 32 bits de acordo com a opção digitada pelo usuário. 
+;   Devem ser armazenados em variáveis locais. Deve mostrar o resultado final. 
+;   Esperar o usuário digitar ENTER e novamente mostrar menu de opções. 
+;   Até o usuário digitar a opção de sair."
 runOperation:
     enter 0, 0
 
     cmp DWORD [operation], 1
-    je run_add
+    je  run_add
+    
     cmp DWORD [operation], 2
-    je run_sub
+    je  run_sub
+    
     cmp DWORD [operation], 3
-    je run_mul
+    je  run_mul
+    
     cmp DWORD [operation], 4
-    je run_div
+    je  run_div
+    
     cmp DWORD [operation], 5
-    je run_exp
+    je  run_exp
+    
     cmp DWORD [operation], 6
-    je run_mod
+    je  run_mod
+    
     cmp DWORD [operation], 7
-    je end_program
+    je  end_program
 
-    run_add:    call soma
-                jmp  end_run
-    run_sub:    call subtracao
-                jmp  end_run
-    run_mul:    call multiplicacao
-                jmp  end_run
-    run_div:    call divisao
-                jmp  end_run
-    run_exp:    call exponenciacao
-                jmp  end_run
-    run_mod:    call mod
-                jmp  end_run
+    jmp end_run
+
+    run_add: call soma
+             jmp  end_run
+    
+    run_sub: call subtracao
+             jmp  end_run
+    
+    run_mul: call multiplicacao
+             jmp  end_run
+    
+    run_div: call divisao
+             jmp  end_run
+    
+    run_exp: call exponenciacao
+             jmp  end_run
+    
+    run_mod: call mod
+             jmp  end_run
 
     end_run:
     leave
@@ -210,19 +223,19 @@ dumbKeypoll:
     push calc_again    
     call putString
 
-    mov eax, ebp 
-    sub eax, 12
+    mov  eax, ebp 
+    sub  eax, 12
     push eax
     call getString
 
     leave 
     ret 12
 
-; "Todas as mensagens de TEXTO devem ser mostradas 
-; usando uma ÚNICA função de saída de dados de string. 
-; Esta função deve receber pela pilha o ponteiro da variável global que
-; contém o string e a quantidade de bytes a serem escritos. 
-; Não deve ter retorno."
+;   "Todas as mensagens de TEXTO devem ser mostradas 
+;   usando uma ÚNICA função de saída de dados de string. 
+;   Esta função deve receber pela pilha o ponteiro da variável global que
+;   contém o string e a quantidade de bytes a serem escritos. 
+;   Não deve ter retorno."
 putString:
     enter 0, 0
 
@@ -245,8 +258,8 @@ putString:
     leave 
     ret 
 
-; "A leitura do teclado deve ser feita por 2 funções: 
-; uma para ler strings, e outra para ler números." 
+;   "A leitura do teclado deve ser feita por 2 funções: 
+;   uma para ler strings, e outra para ler números." 
 getString:
     enter 0, 0
        
@@ -283,7 +296,7 @@ putInt:
     sub edi, edi            ; edi = número de dígitos
     
     mov ecx, ebp 
-    sub ecx, 4              ; ecx = ebp-4 = endereço do primeiro byte 
+    sub ecx, 1              ; ecx = ebp-4 = endereço do primeiro byte 
     mov BYTE [ecx], 0
 
     ; se o número é negativo, toma-se o módulo
@@ -294,46 +307,37 @@ putInt:
     
     ; loop para colocar os bytes na pilha
     while_digit:
-        ; prepara endereço pro próximo char
-        dec ecx 
+        dec ecx         ; prepara endereço pro próximo char        
+        inc edi         ; atualiza tamanho da string
 
-        ; atualiza tamanho da string
-        inc edi
+        sub  edx, edx   ; edx=0 para divisão
+        mov  eax, esi 
+        mov  ebx, 10 
+        idiv ebx        ; dígito = num % 10
 
-        ; dígito = num % 10
-        sub edx, edx    ; edx=0 para divisão
-        mov eax, esi 
-        mov ebx, 10 
-        idiv ebx        ; num % 10 em edx (dl)
+        add edx, '0'    ; (char) dígito := dígito + '0'
+        mov [ecx], dl   ; guarda char na pilha
 
-        ; (char) dígito = dígito + '0'
-        add edx, '0'
+        mov esi, eax    ; num = num//10 (eax = quociente do idiv)
 
-        ; guarda char na pilha
-        mov [ecx], dl
-
-        ; num = num//10
-        mov esi, eax    ; eax = quociente do idiv
-
-        ; num//10 = 0 ? não tem mais número
         cmp esi, 0 
-        jne while_digit
+        jne while_digit ; num//10 = 0 ? não tem mais número
 
     ; imprime sinal se necessário
-    mov ebx, 1  ; std file descriptor
-    mov edx, 1  ; será impresso apenas um byte
+    mov ebx, 1  
+    mov edx, 1  
 
     cmp DWORD [ebp+8], 0
     jge for_putDigit 
 
-    inc edi     ; string ganhou um caracter, o sinal
+    inc edi             ; string ganhou um caracter, o sinal
     dec ecx 
     mov BYTE [ecx], '-'
 
     ; imprime string de final em ecx e início em ebp-4
     for_putDigit:
         cmp edi, 0
-        je end_for_putDigit
+        je  end_for_putDigit
         mov eax, 4
         int 0x80
 
@@ -342,11 +346,10 @@ putInt:
         jmp for_putDigit
 
     end_for_putDigit:
-
     leave 
     ret
 
-; "A de ler números deve ter duas versões: 16 e 32 bits."
+;   "A de ler números deve ter duas versões: 16 e 32 bits."
 getInt32:
     enter 1, 0
 
@@ -384,19 +387,21 @@ getInt32:
     end_while_getChar32:
     cmp edi, 0
     je isPositive32
+    
     neg esi    
+    
     isPositive32:
-    mov eax, esi
+    mov eax, esi        ; retorno em eax
 
     leave 
     ret 
 
-; "A de ler números deve ter duas versões: 16 e 32 bits."
+;   "A de ler números deve ter duas versões: 16 e 32 bits."
 getInt16:
     enter 1, 0
 
-    sub si, si        ; esi = inteiro convertido
-    sub di, di        ; edi = flag de negativo
+    sub si, si          ; esi = inteiro convertido
+    sub di, di          ; edi = flag de negativo
     mov ecx, ebp 
     sub ecx, 1          ; ecx = endereço do espaço reservado para o número
     while_getChar16:
@@ -415,11 +420,11 @@ getInt16:
 
         sub al, '0'     ; al = dígito - '0' = (int) dígito
         mov bx, si 
-        shl bx, 1      ; bx = 2*acc
-        shl si, 3      ; si = 8*acc
-        add si, bx    ; si = 10*acc
+        shl bx, 1       ; bx = 2*acc
+        shl si, 3       ; si = 8*acc
+        add si, bx      ; si = 10*acc
 
-        add si, ax    ; si = 10*acc + (int) dígito
+        add si, ax      ; si = 10*acc + (int) dígito
         jmp while_getChar16
 
         isNegative16:
@@ -428,10 +433,12 @@ getInt16:
 
     end_while_getChar16:
     cmp di, 0
-    je isPositive16
+    je  isPositive16
+    
     neg si    
+    
     isPositive16:
-    mov ax, si
+    mov   ax, si
     movsx eax, ax
 
     leave 
