@@ -97,4 +97,4 @@ Exp_Overflow:
 
 exp_zero:
         mov eax, 1
-        j fim_exp32
+        jmp fim_exp32
