@@ -51,10 +51,7 @@ exponenciacao:
         cmp ecx, 1
         jg exp32
 
-    exp_zero:
-        mov eax, 1
     fim_exp32:
-
         push eax
 
         push result_msg_size
@@ -97,3 +94,7 @@ Exp_Overflow:
     mov eax, 1
     mov ebx, 0
     int 0x80
+
+exp_zero:
+        mov eax, 1
+        j fim_exp32
