@@ -52,12 +52,7 @@ exponenciacao:
         jg exp32
 
         ;Analisa se edx foi somente extensão de sinal ou overflow
-        cmp edx,-1
-        je fim_exp32
-        cmp edx,0
-        je fim_exp32
-
-        jmp Exp_Overflow
+        jo Exp_Overflow
 
     exp_zero:
         mov eax, 1
@@ -82,12 +77,7 @@ exponenciacao:
         jg exp16
 
         ;Analisa se edx foi somente extensão de sinal ou overflow
-        cmp dx,-1
-        je fim_exp16
-        cmp dx,0
-        je fim_exp16
-
-        jmp Exp_Overflow
+        jo Exp_Overflow
 
     fim_exp16:
         cwde
