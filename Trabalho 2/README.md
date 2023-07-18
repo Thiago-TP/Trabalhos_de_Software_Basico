@@ -6,25 +6,25 @@ Etapas para gerar o executável do zero:
     
 2. Crie os arquivos objeto de cada módulo através dos comandos (copie e cole o conjunto na linha de comando)
 	```
-    nasm -f elf CALCULADORA.asm             -o CALCULADORA.o 
-    nasm -f elf operações/SOMA.asm          -o operações/SOMA.o
-    nasm -f elf operações/SUBTRACAO.asm     -o operações/SUBTRACAO.o
-    nasm -f elf operações/MULTIPLICACAO.asm -o operações/MULTIPLICACAO.o
-    nasm -f elf operações/DIVISAO.asm       -o operações/DIVISAO.o
-    nasm -f elf operações/EXPONENCIACAO.asm -o operações/EXPONENCIACAO.o
-    nasm -f elf operações/MOD.asm           -o operações/MOD.o
+    nasm -f elf CALCULADORA.asm   -o CALCULADORA.o 
+    nasm -f elf SOMA.asm          -o SOMA.o
+    nasm -f elf SUBTRACAO.asm     -o SUBTRACAO.o
+    nasm -f elf MULTIPLICACAO.asm -o MULTIPLICACAO.o
+    nasm -f elf DIVISAO.asm       -o DIVISAO.o
+    nasm -f elf EXPONENCIACAO.asm -o EXPONENCIACAO.o
+    nasm -f elf MOD.asm           -o MOD.o
 	```  
 	Os argumentos de todas as operações vêm pela pilha, cortesia da `CALCULADORA.asm`.
 	
 3.  Ligue o arquivo objeto principal através do comando (copie e cole na linha de comando)
 	```
     ld -m elf_i386 -o CALCULADORA CALCULADORA.o io.o \
-    operações/SOMA.o                                 \
-    operações/SUBTRACAO.o                            \
-    operações/MULTIPLICACAO.o                        \
-    operações/DIVISAO.o                              \
-    operações/EXPONENCIACAO.o                        \
-    operações/MOD.o	
+    SOMA.o                                           \
+    SUBTRACAO.o                                      \
+    MULTIPLICACAO.o                                  \
+    DIVISAO.o                                        \
+    EXPONENCIACAO.o                                  \
+    MOD.o	
 	```
 	Se tudo der certo, será criado arquivo executável chamado `CALCULADORA`.
 	
@@ -37,19 +37,19 @@ Etapas para gerar o executável do zero:
 Alternativamente, o trabalho pode ser montado, ligado e executado copiando e colando o bloco único abaixo,
 que é a junção dos comandos listados acima.
 ```
-nasm -f elf CALCULADORA.asm             -o CALCULADORA.o 
-nasm -f elf operações/SOMA.asm          -o operações/SOMA.o
-nasm -f elf operações/SUBTRACAO.asm     -o operações/SUBTRACAO.o
-nasm -f elf operações/MULTIPLICACAO.asm -o operações/MULTIPLICACAO.o
-nasm -f elf operações/DIVISAO.asm       -o operações/DIVISAO.o
-nasm -f elf operações/EXPONENCIACAO.asm -o operações/EXPONENCIACAO.o
-nasm -f elf operações/MOD.asm           -o operações/MOD.o
+nasm -f elf CALCULADORA.asm   -o CALCULADORA.o 
+nasm -f elf SOMA.asm          -o SOMA.o
+nasm -f elf SUBTRACAO.asm     -o SUBTRACAO.o
+nasm -f elf MULTIPLICACAO.asm -o MULTIPLICACAO.o
+nasm -f elf DIVISAO.asm       -o DIVISAO.o
+nasm -f elf EXPONENCIACAO.asm -o EXPONENCIACAO.o
+nasm -f elf MOD.asm           -o MOD.o
 ld -m elf_i386 -o CALCULADORA CALCULADORA.o io.o \
-operações/SOMA.o                                 \
-operações/SUBTRACAO.o                            \
-operações/MULTIPLICACAO.o                        \
-operações/DIVISAO.o                              \
-operações/EXPONENCIACAO.o                        \
-operações/MOD.o							
+SOMA.o                                           \
+SUBTRACAO.o                                      \
+MULTIPLICACAO.o                                  \
+DIVISAO.o                                        \
+EXPONENCIACAO.o                                  \
+MOD.o							
 ./CALCULADORA
 ```
