@@ -90,7 +90,7 @@ exponenciacao:
         jmp Exp_Overflow
 
     fim_exp16:
-
+        cwde
         push eax
 
         push result_msg_size
